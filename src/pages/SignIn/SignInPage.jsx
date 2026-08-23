@@ -275,6 +275,7 @@ export function SignInPage({ onNavigate, onLoginSuccess }) {
               <div className="form-input-wrapper">
                 <input
                   id="signin-email"
+                  name="email"
                   type="email"
                   className={`form-input ${errors.email ? "form-input--error" : ""}`}
                   placeholder="name@nexbank.com"
@@ -282,11 +283,13 @@ export function SignInPage({ onNavigate, onLoginSuccess }) {
                   onChange={handleEmailChange}
                   autoComplete="email"
                   disabled={isLoading}
+                  aria-invalid={Boolean(errors.email)}
+                  aria-describedby={errors.email ? "signin-email-error" : undefined}
                 />
               </div>
               {errors.email && (
-                <span className="form-error-msg">
-                  <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14">
+                <span id="signin-email-error" className="form-error-msg" role="alert">
+                  <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14" aria-hidden="true">
                     <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                   </svg>
                   {errors.email}
@@ -302,6 +305,7 @@ export function SignInPage({ onNavigate, onLoginSuccess }) {
               <div className="form-input-wrapper">
                 <input
                   id="signin-password"
+                  name="password"
                   type={showPassword ? "text" : "password"}
                   className={`form-input form-input--has-trailing ${errors.password ? "form-input--error" : ""}`}
                   placeholder="Enter your account password"
@@ -309,6 +313,8 @@ export function SignInPage({ onNavigate, onLoginSuccess }) {
                   onChange={handlePasswordChange}
                   autoComplete="current-password"
                   disabled={isLoading}
+                  aria-invalid={Boolean(errors.password)}
+                  aria-describedby={errors.password ? "signin-password-error" : undefined}
                 />
                 <button
                   type="button"
@@ -316,17 +322,17 @@ export function SignInPage({ onNavigate, onLoginSuccess }) {
                   onClick={handleTogglePassword}
                   aria-label={showPassword ? "Hide password" : "Show password"}
                   title={showPassword ? "Hide password" : "Show password"}
-                  tabIndex={-1}
+                  aria-pressed={showPassword}
                 >
                   {showPassword ? (
                     /* Eye Off Icon */
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="18" height="18">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="18" height="18" aria-hidden="true">
                       <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24" />
                       <line x1="1" y1="1" x2="23" y2="23" />
                     </svg>
                   ) : (
                     /* Eye Open Icon */
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="18" height="18">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="18" height="18" aria-hidden="true">
                       <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
                       <circle cx="12" cy="12" r="3" />
                     </svg>
@@ -334,8 +340,8 @@ export function SignInPage({ onNavigate, onLoginSuccess }) {
                 </button>
               </div>
               {errors.password && (
-                <span className="form-error-msg">
-                  <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14">
+                <span id="signin-password-error" className="form-error-msg" role="alert">
+                  <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14" aria-hidden="true">
                     <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                   </svg>
                   {errors.password}
@@ -345,9 +351,10 @@ export function SignInPage({ onNavigate, onLoginSuccess }) {
 
             {/* Options: Remember Me & Forgot Password */}
             <div className="form-options">
-              <label className="form-checkbox-label">
+              <label htmlFor="signin-remember" className="form-checkbox-label">
                 <input
                   id="signin-remember"
+                  name="rememberMe"
                   type="checkbox"
                   className="form-checkbox"
                   checked={rememberMe}
@@ -400,17 +407,17 @@ export function SignInPage({ onNavigate, onLoginSuccess }) {
 
       {/* Forgot Password Modal */}
       {showForgotModal && (
-        <div className="modal-overlay" onClick={() => setShowForgotModal(false)}>
+        <div className="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="forgot-password-modal-title" onClick={() => setShowForgotModal(false)}>
           <div className="modal-card" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h3 className="modal-title">Password Recovery</h3>
+              <h3 id="forgot-password-modal-title" className="modal-title">Password Recovery</h3>
               <button
                 type="button"
                 className="nex-alert__close-btn"
                 onClick={() => setShowForgotModal(false)}
                 aria-label="Close"
               >
-                <svg viewBox="0 0 20 20" fill="currentColor" width="20" height="20">
+                <svg viewBox="0 0 20 20" fill="currentColor" width="20" height="20" aria-hidden="true">
                   <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
                 </svg>
               </button>
