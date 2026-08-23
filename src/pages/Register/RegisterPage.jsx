@@ -284,7 +284,7 @@ export function RegisterPage({ onNavigate }) {
                 {/* Full Name */}
                 <div className="form-group">
                   <label htmlFor="reg-fullname" className="form-label">
-                    Full Name <span style={{ color: "#EF4444" }}>*</span>
+                    Full Name <span style={{ color: "#EF4444" }} aria-hidden="true">*</span>
                   </label>
                   <input
                     id="reg-fullname"
@@ -296,10 +296,13 @@ export function RegisterPage({ onNavigate }) {
                     onChange={handleInputChange}
                     disabled={isLoading}
                     autoComplete="name"
+                    aria-required="true"
+                    aria-invalid={Boolean(errors.fullName)}
+                    aria-describedby={errors.fullName ? "reg-fullname-error" : undefined}
                   />
                   {errors.fullName && (
-                    <span className="form-error-msg">
-                      <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14">
+                    <span id="reg-fullname-error" className="form-error-msg" role="alert">
+                      <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14" aria-hidden="true">
                         <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                       </svg>
                       {errors.fullName}
@@ -310,7 +313,7 @@ export function RegisterPage({ onNavigate }) {
                 {/* Email Address */}
                 <div className="form-group">
                   <label htmlFor="reg-email" className="form-label">
-                    Email Address <span style={{ color: "#EF4444" }}>*</span>
+                    Email Address <span style={{ color: "#EF4444" }} aria-hidden="true">*</span>
                   </label>
                   <input
                     id="reg-email"
@@ -322,10 +325,13 @@ export function RegisterPage({ onNavigate }) {
                     onChange={handleInputChange}
                     disabled={isLoading}
                     autoComplete="email"
+                    aria-required="true"
+                    aria-invalid={Boolean(errors.email)}
+                    aria-describedby={errors.email ? "reg-email-error" : undefined}
                   />
                   {errors.email && (
-                    <span className="form-error-msg">
-                      <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14">
+                    <span id="reg-email-error" className="form-error-msg" role="alert">
+                      <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14" aria-hidden="true">
                         <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                       </svg>
                       {errors.email}
@@ -336,7 +342,7 @@ export function RegisterPage({ onNavigate }) {
                 {/* Mobile Number */}
                 <div className="form-group">
                   <label htmlFor="reg-mobile" className="form-label">
-                    Mobile Number <span style={{ color: "#EF4444" }}>*</span>
+                    Mobile Number <span style={{ color: "#EF4444" }} aria-hidden="true">*</span>
                   </label>
                   <input
                     id="reg-mobile"
@@ -348,10 +354,13 @@ export function RegisterPage({ onNavigate }) {
                     onChange={handleInputChange}
                     disabled={isLoading}
                     autoComplete="tel"
+                    aria-required="true"
+                    aria-invalid={Boolean(errors.mobile)}
+                    aria-describedby={errors.mobile ? "reg-mobile-error" : undefined}
                   />
                   {errors.mobile && (
-                    <span className="form-error-msg">
-                      <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14">
+                    <span id="reg-mobile-error" className="form-error-msg" role="alert">
+                      <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14" aria-hidden="true">
                         <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                       </svg>
                       {errors.mobile}
@@ -363,7 +372,7 @@ export function RegisterPage({ onNavigate }) {
                 <div className="form-row">
                   <div className="form-group">
                     <label htmlFor="reg-account-type" className="form-label">
-                      Account Type <span style={{ color: "#EF4444" }}>*</span>
+                      Account Type <span style={{ color: "#EF4444" }} aria-hidden="true">*</span>
                     </label>
                     <select
                       id="reg-account-type"
@@ -372,6 +381,7 @@ export function RegisterPage({ onNavigate }) {
                       value={formData.accountType}
                       onChange={handleInputChange}
                       disabled={isLoading}
+                      aria-required="true"
                     >
                       <option value="Savings Account">Savings Account</option>
                       <option value="Current Account">Current Account</option>
@@ -390,6 +400,7 @@ export function RegisterPage({ onNavigate }) {
                       value={formData.dateOfBirth}
                       onChange={handleInputChange}
                       disabled={isLoading}
+                      autoComplete="bday"
                     />
                   </div>
                 </div>
@@ -397,7 +408,7 @@ export function RegisterPage({ onNavigate }) {
                 {/* Password Field with Toggle */}
                 <div className="form-group">
                   <label htmlFor="reg-password" className="form-label">
-                    Password <span style={{ color: "#EF4444" }}>*</span>
+                    Password <span style={{ color: "#EF4444" }} aria-hidden="true">*</span>
                   </label>
                   <div className="form-input-wrapper">
                     <input
@@ -410,21 +421,25 @@ export function RegisterPage({ onNavigate }) {
                       onChange={handleInputChange}
                       disabled={isLoading}
                       autoComplete="new-password"
+                      aria-required="true"
+                      aria-invalid={Boolean(errors.password)}
+                      aria-describedby={errors.password ? "reg-password-error" : undefined}
                     />
                     <button
                       type="button"
                       className="form-trailing-btn"
                       onClick={() => setShowPassword((prev) => !prev)}
                       aria-label={showPassword ? "Hide password" : "Show password"}
-                      tabIndex={-1}
+                      title={showPassword ? "Hide password" : "Show password"}
+                      aria-pressed={showPassword}
                     >
                       {showPassword ? (
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="18" height="18">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="18" height="18" aria-hidden="true">
                           <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24" />
                           <line x1="1" y1="1" x2="23" y2="23" />
                         </svg>
                       ) : (
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="18" height="18">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="18" height="18" aria-hidden="true">
                           <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
                           <circle cx="12" cy="12" r="3" />
                         </svg>
@@ -449,11 +464,11 @@ export function RegisterPage({ onNavigate }) {
                         >
                           <span className="password-rule-icon">
                             {rule.met ? (
-                              <svg viewBox="0 0 20 20" fill="#10B981" width="14" height="14">
+                              <svg viewBox="0 0 20 20" fill="#10B981" width="14" height="14" aria-hidden="true">
                                 <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                               </svg>
                             ) : (
-                              <svg viewBox="0 0 20 20" fill="#94A3B8" width="14" height="14">
+                              <svg viewBox="0 0 20 20" fill="#94A3B8" width="14" height="14" aria-hidden="true">
                                 <circle cx="10" cy="10" r="4" />
                               </svg>
                             )}
@@ -465,8 +480,8 @@ export function RegisterPage({ onNavigate }) {
                   </div>
 
                   {errors.password && (
-                    <span className="form-error-msg">
-                      <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14">
+                    <span id="reg-password-error" className="form-error-msg" role="alert">
+                      <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14" aria-hidden="true">
                         <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                       </svg>
                       {errors.password}
@@ -477,7 +492,7 @@ export function RegisterPage({ onNavigate }) {
                 {/* Confirm Password Field with Toggle */}
                 <div className="form-group">
                   <label htmlFor="reg-confirm-password" className="form-label">
-                    Confirm Password <span style={{ color: "#EF4444" }}>*</span>
+                    Confirm Password <span style={{ color: "#EF4444" }} aria-hidden="true">*</span>
                   </label>
                   <div className="form-input-wrapper">
                     <input
@@ -490,21 +505,25 @@ export function RegisterPage({ onNavigate }) {
                       onChange={handleInputChange}
                       disabled={isLoading}
                       autoComplete="new-password"
+                      aria-required="true"
+                      aria-invalid={Boolean(errors.confirmPassword)}
+                      aria-describedby={errors.confirmPassword ? "reg-confirm-password-error" : undefined}
                     />
                     <button
                       type="button"
                       className="form-trailing-btn"
                       onClick={() => setShowConfirmPassword((prev) => !prev)}
                       aria-label={showConfirmPassword ? "Hide password" : "Show password"}
-                      tabIndex={-1}
+                      title={showConfirmPassword ? "Hide password" : "Show password"}
+                      aria-pressed={showConfirmPassword}
                     >
                       {showConfirmPassword ? (
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="18" height="18">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="18" height="18" aria-hidden="true">
                           <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24" />
                           <line x1="1" y1="1" x2="23" y2="23" />
                         </svg>
                       ) : (
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="18" height="18">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="18" height="18" aria-hidden="true">
                           <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
                           <circle cx="12" cy="12" r="3" />
                         </svg>
@@ -512,8 +531,8 @@ export function RegisterPage({ onNavigate }) {
                     </button>
                   </div>
                   {errors.confirmPassword && (
-                    <span className="form-error-msg">
-                      <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14">
+                    <span id="reg-confirm-password-error" className="form-error-msg" role="alert">
+                      <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14" aria-hidden="true">
                         <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                       </svg>
                       {errors.confirmPassword}
@@ -523,22 +542,26 @@ export function RegisterPage({ onNavigate }) {
 
                 {/* Terms & Conditions Checkbox */}
                 <div className="terms-group">
-                  <label className="terms-label">
+                  <label htmlFor="reg-terms" className="terms-label">
                     <input
                       id="reg-terms"
+                      name="agreedToTerms"
                       type="checkbox"
                       className="terms-checkbox"
                       checked={formData.agreedToTerms}
                       onChange={handleCheckboxChange}
                       disabled={isLoading}
+                      aria-required="true"
+                      aria-invalid={Boolean(errors.agreedToTerms)}
+                      aria-describedby={errors.agreedToTerms ? "reg-terms-error" : undefined}
                     />
                     <span>
                       I agree to the <span className="terms-link">NexBank Terms &amp; Conditions</span> and Privacy Policy.
                     </span>
                   </label>
                   {errors.agreedToTerms && (
-                    <span className="form-error-msg">
-                      <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14">
+                    <span id="reg-terms-error" className="form-error-msg" role="alert">
+                      <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14" aria-hidden="true">
                         <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                       </svg>
                       {errors.agreedToTerms}
