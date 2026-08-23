@@ -447,6 +447,7 @@
 .transaction-item__details {
   display: flex;
   flex-direction: column;
+  gap: 2px;
 }
 
 .transaction-item__title {
@@ -466,6 +467,7 @@
   display: flex;
   flex-direction: column;
   align-items: flex-end;
+  gap: 2px;
 }
 
 .transaction-item__amount {
@@ -484,7 +486,6 @@
 .transaction-item__date {
   font-size: 0.74rem;
   color: var(--navy-400);
-  margin-top: 2px;
 }
 
 /* Empty Search Results */
@@ -519,7 +520,7 @@
   font-size: 1.15rem;
   font-weight: 800;
   color: var(--navy-900);
-  margin-bottom: 18px;
+  margin-bottom: 16px;
 }
 
 .spending-bars {
@@ -718,3 +719,55 @@
   font-weight: 600;
   font-size: 0.92rem;
 }
+
+/* Responsive Spacing & Balance Polish */
+@media (max-width: 768px) {
+  .dashboard-main {
+    padding: 24px 18px 48px 18px;
+  }
+
+  .dashboard-overview-grid {
+    gap: 18px;
+    margin-bottom: 24px;
+  }
+
+  .dashboard-content-layout {
+    gap: 20px;
+  }
+
+  .transactions-card,
+  .spending-card,
+  .quick-actions-card,
+  .activity-card {
+    padding: 20px 18px;
+  }
+}
+
+@media (max-width: 480px) {
+  .transactions-filter-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .transactions-type-pills {
+    width: 100%;
+    display: flex;
+    gap: 6px;
+  }
+
+  .type-pill-btn {
+    flex: 1;
+    text-align: center;
+    padding: 6px 8px;
+  }
+
+  .transactions-sort-select {
+    width: 100%;
+  }
+
+  .transaction-item {
+    padding: 12px 14px;
+  }
+}
+
