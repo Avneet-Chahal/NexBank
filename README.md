@@ -431,14 +431,4 @@ This project is being developed as an academic project to demonstrate practical 
 * Git & GitHub
 * Full-Stack Web Development
 
----
-
-## ⭐ Project Status
-
-```text
-CA1  → Foundation                 ✅
-CA2  → Core Banking Services      🔜
-Final → Complete Banking System   🔜
-```
-
 **Banking Management System – Building a scalable banking platform using MERN and Microservices Architecture.**
