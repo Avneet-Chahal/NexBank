@@ -280,7 +280,7 @@ Planned information includes:
 
 ## CA1 – Foundation Phase
 
-### Completed / Started
+### Completed 
 
 * Project setup
 * React frontend setup
