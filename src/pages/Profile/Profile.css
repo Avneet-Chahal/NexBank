@@ -559,6 +559,20 @@ input:checked + .switch-slider:before {
 }
 
 /* Responsive Polish */
+@media (min-width: 1024px) and (max-width: 1200px) {
+  .profile-hero {
+    padding: 30px 24px;
+  }
+
+  .profile-hero__name {
+    font-size: 1.7rem;
+  }
+
+  .profile-grid {
+    gap: 20px;
+  }
+}
+
 @media (max-width: 768px) {
   .profile-main {
     padding: 24px 18px 48px 18px;
@@ -606,10 +620,23 @@ input:checked + .switch-slider:before {
     gap: 12px;
   }
 
+  .profile-edit-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .profile-cancel-btn {
+    width: 100%;
+  }
+
   .security-row {
     flex-direction: column;
     align-items: flex-start;
     gap: 10px;
+  }
+
+  .change-password-box {
+    padding: 14px 12px;
   }
 
   .activity-summary-row {
@@ -618,4 +645,5 @@ input:checked + .switch-slider:before {
     gap: 4px;
   }
 }
+
 
