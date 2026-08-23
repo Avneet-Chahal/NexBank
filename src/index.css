@@ -1,0 +1,301 @@
+/**
+ * NexBank – Global Design System & CSS Foundation
+ * 
+ * Design Principles:
+ * - Premium Fintech Aesthetic
+ * - Deep Navy Typography & High Contrast
+ * - Professional Blue Primary Accents (#0052FF / #1D4ED8)
+ * - Layered Elevation & Glassmorphic Highlights
+ * - Accessible Form States & Micro-interactions
+ */
+
+:root {
+  /* Core Color Tokens */
+  --primary-50: #EFF6FF;
+  --primary-100: #DBEAFE;
+  --primary-500: #0052FF;
+  --primary-600: #1D4ED8;
+  --primary-700: #1E40AF;
+  --primary-gradient: linear-gradient(135deg, #0052FF 0%, #1D4ED8 100%);
+  --primary-hover-gradient: linear-gradient(135deg, #1D4ED8 0%, #172554 100%);
+
+  /* Neutral Dark / Typography Tokens */
+  --navy-950: #070D1B;
+  --navy-900: #0F172A;
+  --navy-800: #1E293B;
+  --navy-700: #334155;
+  --navy-600: #475569;
+  --navy-500: #64748B;
+  --navy-400: #94A3B8;
+  --navy-300: #CBD5E1;
+  --navy-200: #E2E8F0;
+  --navy-100: #F1F5F9;
+  --navy-50: #F8FAFC;
+  --white: #FFFFFF;
+
+  /* Semantic Feedback Tokens */
+  --success-50: #ECFDF5;
+  --success-500: #10B981;
+  --success-600: #059669;
+  --error-50: #FEF2F2;
+  --error-100: #FEE2E2;
+  --error-500: #EF4444;
+  --error-600: #DC2626;
+
+  /* Typography */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-heading: 'Plus Jakarta Sans', 'Inter', sans-serif;
+
+  /* Elevation Shadows */
+  --shadow-xs: 0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.08), 0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.08), 0 2px 4px -2px rgba(15, 23, 42, 0.04);
+  --shadow-lg: 0 10px 15px -3px rgba(15, 23, 42, 0.08), 0 4px 6px -4px rgba(15, 23, 42, 0.03);
+  --shadow-xl: 0 20px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.03);
+  --shadow-card: 0 12px 32px -4px rgba(15, 23, 42, 0.06), 0 4px 12px -2px rgba(15, 23, 42, 0.03);
+
+  /* Radius */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+  --radius-full: 9999px;
+
+  /* Transitions */
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Base Resets */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  height: 100%;
+  width: 100%;
+  font-family: var(--font-sans);
+  background-color: var(--navy-50);
+  color: var(--navy-800);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 1.5;
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Typography Helpers */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  color: var(--navy-900);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+a {
+  color: var(--primary-500);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color var(--transition-fast);
+}
+
+a:hover {
+  color: var(--primary-600);
+  text-decoration: underline;
+}
+
+button {
+  font-family: var(--font-sans);
+  cursor: pointer;
+  border: none;
+  outline: none;
+}
+
+/* Brand Logo Component Styles */
+.nex-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  user-select: none;
+}
+
+.nex-brand__icon-wrap {
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.nex-brand__icon-wrap--lg {
+  width: 48px;
+  height: 48px;
+}
+
+.nex-brand__svg {
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 4px 8px rgba(0, 82, 255, 0.25));
+}
+
+.nex-brand__text {
+  display: flex;
+  flex-direction: column;
+}
+
+.nex-brand__name {
+  font-family: var(--font-heading);
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--navy-900);
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+
+.nex-brand__name--lg {
+  font-size: 1.65rem;
+}
+
+.nex-brand__highlight {
+  color: var(--primary-500);
+}
+
+.nex-brand__tagline {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--navy-500);
+}
+
+.nex-brand--light .nex-brand__name {
+  color: var(--white);
+}
+
+.nex-brand--light .nex-brand__tagline {
+  color: var(--primary-100);
+}
+
+/* Common Alert Component Styles */
+.nex-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: var(--radius-md);
+  margin-bottom: 20px;
+  animation: fadeIn 200ms ease-out forwards;
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.nex-alert--error {
+  background-color: var(--error-50);
+  border: 1px solid var(--error-100);
+  color: var(--error-600);
+}
+
+.nex-alert--success {
+  background-color: var(--success-50);
+  border: 1px solid #A7F3D0;
+  color: var(--success-600);
+}
+
+.nex-alert--info {
+  background-color: var(--primary-50);
+  border: 1px solid var(--primary-100);
+  color: var(--primary-700);
+}
+
+.nex-alert__icon {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.nex-alert__content {
+  flex: 1;
+}
+
+.nex-alert__message {
+  font-weight: 500;
+}
+
+.nex-alert__close-btn {
+  background: transparent;
+  color: inherit;
+  opacity: 0.7;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: opacity var(--transition-fast);
+}
+
+.nex-alert__close-btn:hover {
+  opacity: 1;
+}
+
+/* Focus Rings */
+:focus-visible {
+  outline: 2px solid var(--primary-500);
+  outline-offset: 2px;
+}
+
+/* Authentication Back to Home Navigation Link */
+.auth-back-nav {
+  margin-bottom: 20px;
+  display: flex;
+}
+
+.auth-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: none;
+  padding: 4px 0;
+  font-family: var(--font-sans);
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--primary-500);
+  cursor: pointer;
+  transition: color var(--transition-fast);
+  text-decoration: none;
+}
+
+.auth-back-link:hover {
+  color: var(--primary-700);
+}
+
+.auth-back-link__arrow {
+  color: inherit;
+  transition: transform var(--transition-fast);
+}
+
+.auth-back-link:hover .auth-back-link__arrow {
+  transform: translateX(-3px);
+}
+

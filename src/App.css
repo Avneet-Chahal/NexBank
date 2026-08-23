@@ -1,0 +1,79 @@
+/**
+ * NexBank – App Layout Stylesheet
+ */
+
+.nex-app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Placeholder card for incremental pages */
+.placeholder-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--navy-50);
+  padding: 24px;
+}
+
+.placeholder-card {
+  background: var(--white);
+  border: 1px solid var(--navy-200);
+  border-radius: var(--radius-xl);
+  padding: 40px 32px;
+  max-width: 480px;
+  width: 100%;
+  text-align: center;
+  box-shadow: var(--shadow-card);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.placeholder-card h2 {
+  font-size: 1.5rem;
+  color: var(--navy-900);
+  margin-top: 8px;
+}
+
+.placeholder-card p {
+  font-size: 0.95rem;
+  color: var(--navy-600);
+  line-height: 1.6;
+}
+
+.placeholder-actions {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+  margin-top: 8px;
+}
+
+.placeholder-btn {
+  flex: 1;
+  height: 44px;
+  background: var(--primary-gradient);
+  color: var(--white);
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: 0.92rem;
+  transition: all var(--transition-fast);
+}
+
+.placeholder-btn:hover {
+  background: var(--primary-hover-gradient);
+  transform: translateY(-1px);
+}
+
+.placeholder-btn--secondary {
+  background: var(--navy-100);
+  color: var(--navy-800);
+  border: 1px solid var(--navy-200);
+}
+
+.placeholder-btn--secondary:hover {
+  background: var(--navy-200);
+}

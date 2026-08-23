@@ -1,0 +1,102 @@
+{
+  "transactions": [
+    {
+      "id": "TX-901",
+      "title": "Amazon",
+      "category": "Shopping",
+      "type": "expense",
+      "amount": 2499,
+      "date": "2026-08-19",
+      "status": "Completed"
+    },
+    {
+      "id": "TX-902",
+      "title": "Salary Credit",
+      "category": "Income",
+      "type": "income",
+      "amount": 52000,
+      "date": "2026-08-18",
+      "status": "Completed"
+    },
+    {
+      "id": "TX-903",
+      "title": "Electricity Bill",
+      "category": "Utilities",
+      "type": "expense",
+      "amount": 1850,
+      "date": "2026-08-17",
+      "status": "Completed"
+    },
+    {
+      "id": "TX-904",
+      "title": "Netflix Subscription",
+      "category": "Entertainment",
+      "type": "expense",
+      "amount": 649,
+      "date": "2026-08-16",
+      "status": "Completed"
+    },
+    {
+      "id": "TX-905",
+      "title": "Food Delivery",
+      "category": "Food",
+      "type": "expense",
+      "amount": 520,
+      "date": "2026-08-15",
+      "status": "Completed"
+    },
+    {
+      "id": "TX-906",
+      "title": "Freelance Payout",
+      "category": "Income",
+      "type": "income",
+      "amount": 15000,
+      "date": "2026-08-14",
+      "status": "Completed"
+    },
+    {
+      "id": "TX-907",
+      "title": "Grocery Supermarket",
+      "category": "Groceries",
+      "type": "expense",
+      "amount": 3200,
+      "date": "2026-08-12",
+      "status": "Completed"
+    },
+    {
+      "id": "TX-908",
+      "title": "Fiber Internet",
+      "category": "Utilities",
+      "type": "expense",
+      "amount": 999,
+      "date": "2026-08-10",
+      "status": "Completed"
+    }
+  ],
+  "recentActivities": [
+    {
+      "id": "ACT-1",
+      "text": "Account registration completed & provisioned",
+      "timestamp": "Today, 09:30 AM",
+      "status": "success"
+    },
+    {
+      "id": "ACT-2",
+      "text": "NexShield™ 256-bit encryption verified",
+      "timestamp": "Yesterday, 04:15 PM",
+      "status": "success"
+    },
+    {
+      "id": "ACT-3",
+      "text": "Last security session verified from current device",
+      "timestamp": "Aug 18, 08:20 PM",
+      "status": "info"
+    },
+    {
+      "id": "ACT-4",
+      "text": "Monthly digital bank statement generated",
+      "timestamp": "Aug 15, 11:00 AM",
+      "status": "info"
+    }
+  ]
+}

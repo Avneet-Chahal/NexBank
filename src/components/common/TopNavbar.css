@@ -1,0 +1,192 @@
+/**
+ * NexBank – Top Navbar Stylesheet
+ */
+
+.nex-navbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background-color: var(--white);
+  border-bottom: 1px solid var(--navy-200);
+  box-shadow: var(--shadow-xs);
+}
+
+.nex-navbar__container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 24px;
+  height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.nex-navbar__brand {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+/* Center Nav Links */
+.nex-navbar__nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+@media (max-width: 640px) {
+  .nex-navbar__nav {
+    display: none;
+  }
+}
+
+.nex-nav-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: var(--radius-md);
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--navy-600);
+  background: transparent;
+  transition: all var(--transition-fast);
+}
+
+.nex-nav-link:hover {
+  color: var(--primary-500);
+  background-color: var(--primary-50);
+}
+
+.nex-nav-link--active {
+  color: var(--primary-600);
+  background-color: var(--primary-50);
+  font-weight: 700;
+}
+
+/* Right Actions */
+.nex-navbar__actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.nex-icon-btn {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--navy-50);
+  border: 1px solid var(--navy-200);
+  color: var(--navy-700);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-fast);
+}
+
+.nex-icon-btn:hover {
+  background: var(--navy-100);
+  color: var(--navy-900);
+}
+
+.nex-notification-dot {
+  position: absolute;
+  top: 9px;
+  right: 10px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #EF4444;
+  border: 2px solid var(--white);
+}
+
+/* User Pill */
+.nex-user-pill {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 10px 4px 4px;
+  border-radius: var(--radius-full);
+  background: var(--navy-50);
+  border: 1px solid var(--navy-200);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.nex-user-pill:hover {
+  background: var(--navy-100);
+  border-color: var(--navy-300);
+}
+
+.nex-user-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--primary-gradient);
+  color: var(--white);
+  font-size: 0.82rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(0, 82, 255, 0.25);
+}
+
+.nex-user-info {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+@media (max-width: 768px) {
+  .nex-user-info {
+    display: none;
+  }
+}
+
+.nex-user-name {
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: var(--navy-900);
+}
+
+.nex-user-role {
+  font-size: 0.72rem;
+  color: var(--navy-500);
+}
+
+/* Logout Button */
+.nex-logout-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: var(--radius-md);
+  background: var(--error-50);
+  border: 1px solid var(--error-100);
+  color: var(--error-600);
+  font-size: 0.86rem;
+  font-weight: 600;
+  transition: all var(--transition-fast);
+}
+
+.nex-logout-btn:hover {
+  background: #FEE2E2;
+  color: #DC2626;
+  transform: translateY(-1px);
+}
+
+@media (max-width: 640px) {
+  .nex-logout-text {
+    display: none;
+  }
+  .nex-logout-btn {
+    padding: 8px;
+    border-radius: 50%;
+    width: 38px;
+    height: 38px;
+    justify-content: center;
+  }
+}
