@@ -743,7 +743,34 @@
   }
 }
 
+@media (max-width: 640px) {
+  .dashboard-welcome {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .dashboard-welcome__title {
+    font-size: 1.6rem;
+  }
+}
+
 @media (max-width: 480px) {
+  .virtual-card {
+    padding: 20px 18px;
+    min-height: 200px;
+  }
+
+  .virtual-card__balance {
+    font-size: 1.65rem;
+  }
+
+  .virtual-card__acc-num {
+    font-size: 0.95rem;
+    letter-spacing: 0.08em;
+  }
+
   .transactions-filter-row {
     flex-direction: column;
     align-items: stretch;
@@ -768,6 +795,18 @@
 
   .transaction-item {
     padding: 12px 14px;
+    gap: 12px;
+  }
+
+  .transaction-item__left {
+    min-width: 0;
+    gap: 10px;
+  }
+
+  .transaction-item__title {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 }
 
