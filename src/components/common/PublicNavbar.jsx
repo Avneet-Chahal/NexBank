@@ -68,6 +68,7 @@ export function PublicNavbar({ activePage = "home", onNavigate }) {
             type="button"
             className={`landing-nav__link ${activePage === "home" ? "landing-nav__link--active" : ""}`}
             onClick={() => handleNavClick("home")}
+            aria-current={activePage === "home" ? "page" : undefined}
           >
             <span>Home</span>
           </button>
@@ -76,6 +77,7 @@ export function PublicNavbar({ activePage = "home", onNavigate }) {
             type="button"
             className={`landing-nav__link ${activePage === "features" ? "landing-nav__link--active" : ""}`}
             onClick={() => handleNavClick("features")}
+            aria-current={activePage === "features" ? "page" : undefined}
           >
             <span>Features</span>
           </button>
@@ -84,6 +86,7 @@ export function PublicNavbar({ activePage = "home", onNavigate }) {
             type="button"
             className={`landing-nav__link ${activePage === "security" ? "landing-nav__link--active" : ""}`}
             onClick={() => handleNavClick("security")}
+            aria-current={activePage === "security" ? "page" : undefined}
           >
             <span>Security</span>
           </button>
@@ -92,6 +95,7 @@ export function PublicNavbar({ activePage = "home", onNavigate }) {
             type="button"
             className={`landing-nav__link ${activePage === "about" ? "landing-nav__link--active" : ""}`}
             onClick={() => handleNavClick("about")}
+            aria-current={activePage === "about" ? "page" : undefined}
           >
             <span>About Us</span>
           </button>
@@ -100,6 +104,7 @@ export function PublicNavbar({ activePage = "home", onNavigate }) {
             type="button"
             className={`landing-nav__link ${activePage === "support" ? "landing-nav__link--active" : ""}`}
             onClick={() => handleNavClick("support")}
+            aria-current={activePage === "support" ? "page" : undefined}
           >
             <span>Support</span>
           </button>
@@ -161,6 +166,7 @@ export function PublicNavbar({ activePage = "home", onNavigate }) {
               type="button"
               className={`landing-nav__mobile-link ${activePage === "home" ? "landing-nav__mobile-link--active" : ""}`}
               onClick={() => handleNavClick("home")}
+              aria-current={activePage === "home" ? "page" : undefined}
             >
               Home
             </button>
@@ -168,6 +174,7 @@ export function PublicNavbar({ activePage = "home", onNavigate }) {
               type="button"
               className={`landing-nav__mobile-link ${activePage === "features" ? "landing-nav__mobile-link--active" : ""}`}
               onClick={() => handleNavClick("features")}
+              aria-current={activePage === "features" ? "page" : undefined}
             >
               Features
             </button>
@@ -175,6 +182,7 @@ export function PublicNavbar({ activePage = "home", onNavigate }) {
               type="button"
               className={`landing-nav__mobile-link ${activePage === "security" ? "landing-nav__mobile-link--active" : ""}`}
               onClick={() => handleNavClick("security")}
+              aria-current={activePage === "security" ? "page" : undefined}
             >
               Security
             </button>
@@ -182,6 +190,7 @@ export function PublicNavbar({ activePage = "home", onNavigate }) {
               type="button"
               className={`landing-nav__mobile-link ${activePage === "about" ? "landing-nav__mobile-link--active" : ""}`}
               onClick={() => handleNavClick("about")}
+              aria-current={activePage === "about" ? "page" : undefined}
             >
               About Us
             </button>
@@ -189,6 +198,7 @@ export function PublicNavbar({ activePage = "home", onNavigate }) {
               type="button"
               className={`landing-nav__mobile-link ${activePage === "support" ? "landing-nav__mobile-link--active" : ""}`}
               onClick={() => handleNavClick("support")}
+              aria-current={activePage === "support" ? "page" : undefined}
             >
               Support
             </button>
