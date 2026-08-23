@@ -218,6 +218,11 @@
   transform: translateY(-1px);
 }
 
+.profile-edit-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0, 82, 255, 0.2);
+}
+
 /* Information Fields & Form */
 .info-fields-list {
   display: flex;
@@ -296,6 +301,12 @@
 .profile-save-btn:hover {
   background: var(--primary-hover-gradient);
   transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 82, 255, 0.25);
+}
+
+.profile-save-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0, 82, 255, 0.35);
 }
 
 .profile-cancel-btn {
@@ -312,6 +323,13 @@
 
 .profile-cancel-btn:hover {
   background-color: var(--navy-200);
+  color: var(--navy-900);
+}
+
+.profile-cancel-btn:focus-visible {
+  outline: none;
+  border-color: var(--primary-500);
+  box-shadow: 0 0 0 3px rgba(0, 82, 255, 0.15);
 }
 
 /* Account Details Grid */
@@ -436,6 +454,19 @@
   color: var(--primary-600);
   font-size: 0.84rem;
   font-weight: 700;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-fast);
+}
+
+.change-password-toggle-btn:hover {
+  background-color: var(--primary-50);
+  color: var(--primary-700);
+}
+
+.change-password-toggle-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(0, 82, 255, 0.35);
 }
 
 .change-password-form {
@@ -527,6 +558,14 @@ input:checked + .switch-slider {
 
 input:checked + .switch-slider:before {
   transform: translateX(20px);
+}
+
+.switch-toggle:hover .switch-slider {
+  filter: brightness(0.96);
+}
+
+.switch-toggle input:focus-visible + .switch-slider {
+  box-shadow: 0 0 0 3px rgba(0, 82, 255, 0.25);
 }
 
 /* Activity Summary List */
