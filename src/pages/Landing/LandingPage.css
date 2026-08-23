@@ -1545,3 +1545,76 @@
   gap: 8px;
   color: #94A3B8;
 }
+
+/* ==========================================================================
+   10. Medium Screen & Laptop Responsive Polish
+   ========================================================================== */
+.public-subpage-wrap {
+  display: flex;
+  flex-direction: column;
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .features-section {
+    padding: 72px 24px 80px;
+  }
+
+  .section-header {
+    margin-bottom: 48px;
+  }
+
+  .security-section {
+    padding: 24px 24px 64px;
+  }
+
+  .security-panel {
+    padding: 56px 36px;
+  }
+
+  .security-panel__header {
+    margin-bottom: 44px;
+  }
+
+  .security-points-grid {
+    gap: 18px;
+    margin-bottom: 44px;
+  }
+
+  .security-point-card {
+    padding: 24px 18px;
+  }
+
+  .about-section {
+    padding: 68px 24px;
+  }
+
+  .about-stats-grid {
+    gap: 16px;
+    margin-bottom: 36px;
+  }
+
+  .about-stat-card {
+    padding: 24px 18px;
+  }
+
+  .about-pillars-card {
+    padding: 32px 24px;
+    gap: 28px;
+  }
+
+  .support-section {
+    padding: 68px 24px;
+  }
+
+  .support-cards-grid {
+    gap: 20px;
+  }
+
+  .support-channel-card {
+    padding: 26px 20px;
+  }
+
+  .final-cta-section {
+    padding: 40px 24px 72px;
+  }
+}
