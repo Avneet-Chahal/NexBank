@@ -314,6 +314,10 @@
   padding-right: 46px;
 }
 
+#signin-password:hover:not(:focus):not(.form-input--error) {
+  border-color: rgba(0, 82, 255, 0.4);
+}
+
 .form-trailing-btn {
   position: absolute;
   right: 12px;
