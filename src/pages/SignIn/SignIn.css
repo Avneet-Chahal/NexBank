@@ -509,3 +509,38 @@
 .modal-close-btn:hover {
   background: var(--navy-800);
 }
+
+/* Responsive Enhancements */
+@media (min-width: 1024px) and (max-width: 1200px) {
+  .signin-showcase {
+    padding: 48px 32px;
+  }
+
+  .signin-showcase__title {
+    font-size: 2rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .signin-main {
+    padding: 28px 18px;
+  }
+}
+
+@media (max-width: 420px) {
+  .signin-demo-pill {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .signin-demo-pill__btn {
+    align-self: flex-start;
+  }
+
+  .form-options {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+}
+

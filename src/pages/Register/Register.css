@@ -431,3 +431,31 @@
   background: var(--primary-hover-gradient);
   transform: translateY(-1px);
 }
+
+/* Responsive Enhancements */
+@media (min-width: 1024px) and (max-width: 1200px) {
+  .register-showcase {
+    padding: 40px 32px;
+  }
+
+  .register-showcase__title {
+    font-size: 2rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .register-main {
+    padding: 28px 18px;
+  }
+}
+
+@media (max-width: 420px) {
+  .registration-success-card {
+    padding: 28px 16px;
+  }
+
+  .success-details-box {
+    padding: 14px;
+  }
+}
+
