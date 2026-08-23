@@ -294,41 +294,6 @@ Planned information includes:
 
 ---
 
-## CA2 – Core Banking Phase
-
-Planned implementation:
-
-* Backend authentication
-* MongoDB integration
-* User service
-* Account service
-* Transaction service
-* REST APIs
-* JWT authentication
-* Protected routes
-* Banking dashboard
-
----
-
-## Final Evaluation – Advanced Banking System
-
-Planned implementation:
-
-* Loan service
-* Card service
-* Notification service
-* Advanced transaction management
-* Role-based access
-* Admin dashboard
-* API Gateway
-* Service-to-service communication
-* Security improvements
-* Error handling
-* Logging
-* Testing
-* Deployment
-
----
 
 # 🔄 Development Workflow
 
