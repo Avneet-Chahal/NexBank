@@ -375,6 +375,12 @@
   gap: 10px;
   transition: all var(--transition-fast);
   cursor: pointer;
+  outline: none;
+}
+
+.hero-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.5);
 }
 
 .hero-btn--primary {
@@ -387,6 +393,16 @@
   background: var(--primary-hover-gradient);
   box-shadow: 0 6px 28px rgba(0, 82, 255, 0.55);
   transform: translateY(-2px);
+  filter: brightness(1.04);
+}
+
+.hero-btn--primary:focus-visible {
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.55), 0 4px 20px rgba(0, 82, 255, 0.4);
+}
+
+.hero-btn--primary:active {
+  transform: translateY(0);
+  filter: brightness(0.98);
 }
 
 .hero-btn__arrow {
@@ -408,6 +424,16 @@
   background: rgba(255, 255, 255, 0.12);
   border-color: rgba(255, 255, 255, 0.35);
   transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+}
+
+.hero-btn--secondary:focus-visible {
+  border-color: #38BDF8;
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.4);
+}
+
+.hero-btn--secondary:active {
+  transform: translateY(0);
 }
 
 /* 4 Trust / Value Indicators (2x2 Grid) */
@@ -1378,6 +1404,12 @@
   gap: 10px;
   transition: all var(--transition-fast);
   cursor: pointer;
+  outline: none;
+}
+
+.final-cta-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.5);
 }
 
 .final-cta-btn--primary {
@@ -1390,6 +1422,16 @@
   background: var(--primary-hover-gradient);
   box-shadow: 0 6px 28px rgba(0, 82, 255, 0.6);
   transform: translateY(-2px);
+  filter: brightness(1.04);
+}
+
+.final-cta-btn--primary:focus-visible {
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.55), 0 4px 20px rgba(0, 82, 255, 0.4);
+}
+
+.final-cta-btn--primary:active {
+  transform: translateY(0);
+  filter: brightness(0.98);
 }
 
 .final-cta-btn--secondary {
@@ -1403,6 +1445,16 @@
   background: rgba(255, 255, 255, 0.16);
   border-color: rgba(255, 255, 255, 0.4);
   transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+}
+
+.final-cta-btn--secondary:focus-visible {
+  border-color: #38BDF8;
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.4);
+}
+
+.final-cta-btn--secondary:active {
+  transform: translateY(0);
 }
 
 /* ==========================================================================
