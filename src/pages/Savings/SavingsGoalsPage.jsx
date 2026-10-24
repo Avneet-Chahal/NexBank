@@ -238,7 +238,7 @@ export function SavingsGoalsPage({ user, onNavigate, onLogout }) {
         </div>
 
         {/* Aggregate Overview Card */}
-        <section className="budget-overview-card" style={{ marginBottom: "28px" }}>
+        <section className="goals-overview-card">
           <div className="budget-overview-grid">
             <div className="budget-overview-stat">
               <span className="budget-overview-label">Total Capital Saved</span>
@@ -250,7 +250,7 @@ export function SavingsGoalsPage({ user, onNavigate, onLogout }) {
             </div>
             <div className="budget-overview-stat">
               <span className="budget-overview-label">Completed Milestones</span>
-              <span className="budget-overview-val" style={{ color: "#60A5FA" }}>
+              <span className="budget-overview-val text-primary-light">
                 {completedCount} of {goals.length} Goals
               </span>
             </div>
@@ -283,8 +283,8 @@ export function SavingsGoalsPage({ user, onNavigate, onLogout }) {
             </button>
           </div>
 
-          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-            <span style={{ fontSize: "0.82rem", color: "#64748B", fontWeight: "600" }}>Sort:</span>
+          <div className="goals-sort-group">
+            <span className="goals-sort-label">Sort:</span>
             <select
               className="goals-sort-select"
               value={sortBy}
@@ -343,7 +343,7 @@ export function SavingsGoalsPage({ user, onNavigate, onLogout }) {
                         >
                           {isDone ? "Goal Achieved!" : goal.category || "Active Goal"}
                         </span>
-                        <span style={{ fontSize: "0.8rem", fontWeight: "700", color: isDone ? "#059669" : "#0052FF" }}>
+                        <span className={`goal-card__pct-badge ${isDone ? "goal-card__pct-badge--completed" : "goal-card__pct-badge--active"}`}>
                           {pct}%
                         </span>
                       </div>
@@ -408,17 +408,18 @@ export function SavingsGoalsPage({ user, onNavigate, onLogout }) {
                 })}
               </div>
             ) : (
-              <div className="chart-empty-state" style={{ backgroundColor: "var(--white)", borderRadius: "var(--radius-xl)", padding: "48px 24px" }}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="48" height="48">
-                  <circle cx="12" cy="12" r="10" />
-                  <path d="M12 8v8M8 12h8" />
-                </svg>
+              <div className="goals-empty-card">
+                <div className="goals-empty-icon-wrap">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="36" height="36">
+                    <circle cx="12" cy="12" r="10" />
+                    <path d="M12 8v8M8 12h8" />
+                  </svg>
+                </div>
                 <h3>No savings goals found in this view</h3>
                 <p>Create dedicated savings goals to set targets and simulate progressive savings milestones.</p>
                 <button
                   type="button"
                   className="create-budget-btn"
-                  style={{ marginTop: "16px" }}
                   onClick={handleOpenCreate}
                 >
                   Create Your First Goal
@@ -433,16 +434,19 @@ export function SavingsGoalsPage({ user, onNavigate, onLogout }) {
           <div className="modal-overlay" onClick={() => setIsGoalModalOpen(false)}>
             <div className="modal-card" onClick={(e) => e.stopPropagation()}>
               <div className="modal-header">
-                <h3 className="modal-title">
-                  {editingGoal ? "Edit Savings Goal" : "Create Savings Goal"}
-                </h3>
-                <button type="button" className="modal-close-btn" onClick={() => setIsGoalModalOpen(false)}>
+                <div>
+                  <span className="modal-badge">{editingGoal ? "UPDATE TARGET" : "NEW MILESTONE"}</span>
+                  <h3 className="modal-title">
+                    {editingGoal ? "Edit Savings Goal" : "Create Savings Goal"}
+                  </h3>
+                </div>
+                <button type="button" className="modal-close-btn" onClick={() => setIsGoalModalOpen(false)} aria-label="Close modal">
                   &times;
                 </button>
               </div>
 
               {modalError && (
-                <div style={{ color: "#EF4444", fontSize: "0.85rem", marginBottom: "12px", fontWeight: "500" }}>
+                <div className="form-error-alert">
                   {modalError}
                 </div>
               )}
@@ -532,48 +536,43 @@ export function SavingsGoalsPage({ user, onNavigate, onLogout }) {
             <div className="modal-card" onClick={(e) => e.stopPropagation()}>
               <div className="modal-header">
                 <div>
+                  <span className="modal-badge">CAPITAL ALLOCATION</span>
                   <h3 className="modal-title">Simulate Contribution</h3>
-                  <p style={{ fontSize: "0.82rem", color: "#64748B" }}>
-                    For {contributeTargetGoal.name}
+                  <p className="modal-subtitle">
+                    Target: {contributeTargetGoal.name}
                   </p>
                 </div>
                 <button
                   type="button"
                   className="modal-close-btn"
                   onClick={() => setIsContributeModalOpen(false)}
+                  aria-label="Close modal"
                 >
                   &times;
                 </button>
               </div>
 
-              <div
-                style={{
-                  backgroundColor: "#F8FAFC",
-                  padding: "10px 14px",
-                  borderRadius: "8px",
-                  fontSize: "0.78rem",
-                  color: "#475569",
-                  marginBottom: "16px",
-                  border: "1px solid #E2E8F0"
-                }}
-              >
-                <strong>Academic Portfolio Disclaimer:</strong> This simulates a balance contribution towards your educational project goal. No real monetary transactions take place.
+              <div className="modal-academic-banner">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16" className="modal-academic-icon">
+                  <circle cx="12" cy="12" r="10" />
+                  <line x1="12" y1="16" x2="12" y2="12" />
+                  <line x1="12" y1="8" x2="12.01" y2="8" />
+                </svg>
+                <span><strong>Academic Simulation:</strong> This simulates a balance contribution towards your educational project goal. No real monetary transactions take place.</span>
               </div>
 
               <form onSubmit={handleProcessContribution}>
-                <div style={{ display: "flex", gap: "8px", marginBottom: "16px" }}>
+                <div className="contribute-action-toggle">
                   <button
                     type="button"
-                    className={`type-pill-btn ${contributeAction === "deposit" ? "type-pill-btn--active" : ""}`}
-                    style={{ flex: 1, padding: "8px" }}
+                    className={`contribute-toggle-btn ${contributeAction === "deposit" ? "contribute-toggle-btn--active" : ""}`}
                     onClick={() => setContributeAction("deposit")}
                   >
                     + Add Funds
                   </button>
                   <button
                     type="button"
-                    className={`type-pill-btn ${contributeAction === "withdraw" ? "type-pill-btn--active" : ""}`}
-                    style={{ flex: 1, padding: "8px" }}
+                    className={`contribute-toggle-btn ${contributeAction === "withdraw" ? "contribute-toggle-btn--active" : ""}`}
                     onClick={() => setContributeAction("withdraw")}
                   >
                     - Withdraw Funds
@@ -581,13 +580,12 @@ export function SavingsGoalsPage({ user, onNavigate, onLogout }) {
                 </div>
 
                 {/* Quick Presets */}
-                <div style={{ display: "flex", gap: "6px", marginBottom: "14px", flexWrap: "wrap" }}>
+                <div className="contribute-presets-row">
                   {[1000, 2500, 5000, 10000].map((preset) => (
                     <button
                       key={preset}
                       type="button"
-                      className="type-pill-btn"
-                      style={{ fontSize: "0.78rem" }}
+                      className="contribute-preset-btn"
                       onClick={() => setContributeAmount(String(preset))}
                     >
                       +₹{preset.toLocaleString("en-IN")}
