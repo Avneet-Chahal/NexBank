@@ -1,20 +1,32 @@
 /**
  * NexBank – Register Page Stylesheet
+ * Enterprise Digital Banking SaaS Aesthetic: Dark navy / charcoal with restrained violet & blue accents.
  */
 
 .register-layout {
   min-height: 100vh;
   display: flex;
-  background-color: var(--navy-50);
+  background-color: #070D1B;
+  background-image: 
+    radial-gradient(ellipse 70% 55% at 8% 18%, rgba(99, 102, 241, 0.14) 0%, transparent 60%),
+    radial-gradient(ellipse 65% 55% at 92% 82%, rgba(0, 82, 255, 0.16) 0%, transparent 65%),
+    radial-gradient(circle at 50% 50%, #0A1024 0%, #070D1B 100%);
+  color: #FFFFFF;
+  position: relative;
+  overflow-x: hidden;
+  font-family: var(--font-sans);
 }
 
-/* Left Showcase Panel */
+/* ==========================================================================
+   1. Left Showcase Panel (Desktop)
+   ========================================================================== */
 .register-showcase {
   display: none;
   flex: 1.05;
-  background: radial-gradient(circle at top left, #1E40AF 0%, #0F172A 70%, #070D1B 100%);
+  background: linear-gradient(155deg, rgba(15, 23, 42, 0.85) 0%, rgba(7, 13, 27, 0.96) 100%);
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
   color: var(--white);
-  padding: 48px;
+  padding: 64px 52px;
   position: relative;
   overflow: hidden;
   flex-direction: column;
@@ -29,14 +41,14 @@
 
 .register-showcase__ambient {
   position: absolute;
-  width: 450px;
-  height: 450px;
-  background: radial-gradient(circle, rgba(0, 82, 255, 0.28) 0%, rgba(0, 0, 0, 0) 70%);
-  top: -100px;
-  right: -100px;
+  width: 520px;
+  height: 520px;
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.22) 0%, rgba(0, 82, 255, 0.15) 40%, transparent 70%);
+  top: -120px;
+  right: -120px;
   border-radius: 50%;
   pointer-events: none;
-  filter: blur(40px);
+  filter: blur(50px);
 }
 
 .register-showcase__header {
@@ -47,9 +59,10 @@
 .register-showcase__content {
   position: relative;
   z-index: 2;
-  max-width: 480px;
-  margin-top: 44px;
+  max-width: 490px;
+  margin-top: 36px;
   margin-bottom: auto;
+  padding: 20px 0;
 }
 
 .register-showcase__badge {
@@ -58,12 +71,12 @@
   gap: 8px;
   padding: 6px 14px;
   border-radius: var(--radius-full);
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(99, 102, 241, 0.12);
+  border: 1px solid rgba(129, 140, 248, 0.3);
   backdrop-filter: blur(12px);
   font-size: 0.82rem;
   font-weight: 600;
-  color: #93C5FD;
+  color: #C7D2FE;
   margin-bottom: 24px;
 }
 
@@ -71,30 +84,31 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background-color: #34D399;
-  box-shadow: 0 0 10px #34D399;
+  background-color: #818CF8;
+  box-shadow: 0 0 10px #818CF8, 0 0 4px #818CF8;
 }
 
 .register-showcase__title {
-  font-size: 2.25rem;
+  font-family: var(--font-heading);
+  font-size: 2.35rem;
   font-weight: 800;
-  line-height: 1.2;
-  color: var(--white);
+  line-height: 1.18;
+  color: #FFFFFF;
   margin-bottom: 16px;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.035em;
 }
 
 .register-showcase__desc {
-  font-size: 1rem;
+  font-size: 1.02rem;
   color: #94A3B8;
-  line-height: 1.6;
-  margin-bottom: 32px;
+  line-height: 1.65;
+  margin-bottom: 34px;
 }
 
 .register-showcase__features {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 15px;
 }
 
 .register-showcase__footer {
@@ -107,30 +121,45 @@
   padding-top: 24px;
   font-size: 0.82rem;
   color: #64748B;
+  letter-spacing: 0.01em;
 }
 
-/* Right Main Form Container */
+/* ==========================================================================
+   2. Right Main Form Container
+   ========================================================================== */
 .register-main {
-  flex: 1.15;
+  flex: 1.25;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  padding: 40px 24px;
-  background-color: var(--white);
+  padding: 44px 24px;
+  background-color: transparent;
+  position: relative;
+  z-index: 2;
   overflow-y: auto;
 }
 
 .register-container {
   width: 100%;
-  max-width: 480px;
+  max-width: 540px;
+  background: rgba(15, 23, 42, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border-radius: 24px;
+  padding: 40px 36px;
+  box-shadow: 
+    0 24px 60px -12px rgba(0, 0, 0, 0.65), 
+    0 0 35px rgba(99, 102, 241, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.14);
   animation: fadeIn 300ms ease-out forwards;
 }
 
 .register-mobile-header {
   display: flex;
   justify-content: center;
-  margin-bottom: 28px;
+  margin-bottom: 24px;
 }
 
 @media (min-width: 1024px) {
@@ -144,20 +173,23 @@
 }
 
 .register-header__title {
+  font-family: var(--font-heading);
   font-size: 1.85rem;
   font-weight: 800;
-  color: var(--navy-900);
+  color: #FFFFFF;
   margin-bottom: 6px;
   letter-spacing: -0.03em;
 }
 
 .register-header__subtitle {
-  font-size: 0.95rem;
-  color: var(--navy-500);
+  font-size: 0.92rem;
+  color: #94A3B8;
   line-height: 1.5;
 }
 
-/* Form Styles */
+/* ==========================================================================
+   3. Register Form Controls & Grid
+   ========================================================================== */
 .register-form {
   display: flex;
   flex-direction: column;
@@ -170,7 +202,7 @@
   gap: 14px;
 }
 
-@media (max-width: 540px) {
+@media (max-width: 580px) {
   .form-row {
     grid-template-columns: 1fr;
   }
@@ -182,36 +214,56 @@
   padding: 0 16px;
   font-size: 0.92rem;
   font-family: var(--font-sans);
-  color: var(--navy-900);
-  background-color: var(--white);
-  border: 1.5px solid var(--navy-200);
+  color: #FFFFFF;
+  background-color: #090F1E;
+  border: 1px solid #1E293B;
   border-radius: var(--radius-md);
   cursor: pointer;
+  outline: none;
   transition: all var(--transition-fast);
 }
 
+.form-select option {
+  background-color: #0F172A;
+  color: #FFFFFF;
+}
+
+.form-select:hover:not(:focus) {
+  border-color: #334155;
+  background-color: #0B1327;
+}
+
 .form-select:focus {
-  border-color: var(--primary-500);
-  box-shadow: 0 0 0 3px rgba(0, 82, 255, 0.12);
+  border-color: #6366F1;
+  background-color: #0D1527;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25);
   outline: none;
 }
 
-/* Dynamic Live Password Checklist Box */
+/* Date input styling for dark theme */
+input[type="date"] {
+  color-scheme: dark;
+}
+
+/* ==========================================================================
+   4. Live Password Criteria Box
+   ========================================================================== */
 .password-requirements-box {
-  background-color: var(--navy-50);
-  border: 1px solid var(--navy-200);
+  background-color: rgba(99, 102, 241, 0.06);
+  border: 1px solid rgba(129, 140, 248, 0.22);
   border-radius: var(--radius-md);
-  padding: 12px 14px;
+  padding: 14px 16px;
   margin-top: 4px;
+  backdrop-filter: blur(8px);
 }
 
 .password-requirements-header {
-  font-size: 0.78rem;
+  font-size: 0.76rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--navy-600);
-  margin-bottom: 8px;
+  letter-spacing: 0.06em;
+  color: #C7D2FE;
+  margin-bottom: 10px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -220,21 +272,24 @@
 .password-strength-pill {
   font-size: 0.72rem;
   font-weight: 700;
-  padding: 2px 8px;
+  padding: 2px 10px;
   border-radius: var(--radius-full);
-  background-color: var(--navy-200);
-  color: var(--navy-700);
+  background-color: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #94A3B8;
+  letter-spacing: 0.02em;
 }
 
 .password-strength-pill--strong {
-  background-color: #D1FAE5;
-  color: #065F46;
+  background-color: rgba(16, 185, 129, 0.18);
+  border-color: rgba(16, 185, 129, 0.4);
+  color: #34D399;
 }
 
 .password-requirements-list {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 6px 12px;
+  gap: 8px 14px;
   list-style: none;
   padding: 0;
   margin: 0;
@@ -249,27 +304,29 @@
 .password-rule-item {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 0.8rem;
-  color: var(--navy-500);
-  transition: color var(--transition-fast);
+  gap: 7px;
+  font-size: 0.78rem;
+  color: #94A3B8;
+  transition: all var(--transition-fast);
 }
 
 .password-rule-item--met {
-  color: var(--success-600);
+  color: #34D399;
   font-weight: 600;
 }
 
 .password-rule-icon {
-  width: 14px;
-  height: 14px;
+  width: 15px;
+  height: 15px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
 }
 
-/* Terms Checkbox */
+/* ==========================================================================
+   5. Terms & Submit Button
+   ========================================================================== */
 .terms-group {
   margin-top: 4px;
 }
@@ -278,120 +335,150 @@
   display: flex;
   align-items: flex-start;
   gap: 10px;
-  font-size: 0.86rem;
-  color: var(--navy-700);
+  font-size: 0.85rem;
+  color: #CBD5E1;
   cursor: pointer;
   line-height: 1.45;
+  user-select: none;
 }
 
 .terms-checkbox {
   margin-top: 2px;
   width: 17px;
   height: 17px;
-  accent-color: var(--primary-500);
+  accent-color: #6366F1;
   cursor: pointer;
 }
 
 .terms-link {
-  color: var(--primary-500);
+  color: #818CF8;
   font-weight: 600;
   text-decoration: underline;
+  transition: color var(--transition-fast);
 }
 
-/* Register Submit Button */
+.terms-link:hover {
+  color: #A5B4FC;
+}
+
 .register-submit-btn {
   width: 100%;
   height: 48px;
-  background: var(--primary-gradient);
+  background: linear-gradient(135deg, #0052FF 0%, #4F46E5 50%, #6366F1 100%);
   color: var(--white);
   border-radius: var(--radius-md);
-  font-size: 1rem;
-  font-weight: 600;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  font-size: 0.98rem;
+  font-weight: 700;
   letter-spacing: -0.01em;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
-  box-shadow: 0 4px 12px rgba(0, 82, 255, 0.25);
+  box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.25);
   transition: all var(--transition-fast);
-  margin-top: 8px;
+  cursor: pointer;
+  outline: none;
+  margin-top: 6px;
 }
 
 .register-submit-btn:hover:not(:disabled) {
-  background: var(--primary-hover-gradient);
-  box-shadow: 0 6px 16px rgba(0, 82, 255, 0.35);
-  transform: translateY(-1px);
+  box-shadow: 0 6px 28px rgba(99, 102, 241, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  transform: translateY(-2px);
+  filter: brightness(1.05);
+}
+
+.register-submit-btn:focus-visible {
+  outline: 2px solid #818CF8;
+  outline-offset: 3px;
 }
 
 .register-submit-btn:disabled {
-  opacity: 0.7;
+  opacity: 0.65;
   cursor: not-allowed;
+  transform: none;
 }
 
 /* Footer / Switch to Sign In */
 .register-footer {
   margin-top: 28px;
   text-align: center;
-  font-size: 0.92rem;
-  color: var(--navy-600);
+  font-size: 0.9rem;
+  color: #94A3B8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex-wrap: wrap;
 }
 
 .register-footer__link {
   font-weight: 700;
-  color: var(--primary-500);
-  margin-left: 4px;
+  color: #818CF8;
 }
 
-/* Registration Success View Card */
+.register-footer__link:hover {
+  color: #A5B4FC;
+  text-decoration: underline;
+}
+
+/* ==========================================================================
+   6. Registration Success Card
+   ========================================================================== */
 .registration-success-card {
-  background: var(--white);
-  border: 1px solid var(--navy-200);
-  border-radius: var(--radius-xl);
-  padding: 36px 28px;
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 24px;
+  padding: 40px 32px;
   text-align: center;
-  box-shadow: var(--shadow-card);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7), 0 0 40px rgba(16, 185, 129, 0.1);
   animation: fadeIn 300ms ease-out forwards;
 }
 
 .success-icon-badge {
-  width: 64px;
-  height: 64px;
+  width: 68px;
+  height: 68px;
   border-radius: 50%;
-  background-color: var(--success-50);
-  border: 2px solid #A7F3D0;
-  color: var(--success-600);
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(5, 150, 105, 0.3) 100%);
+  border: 2px solid #34D399;
+  color: #34D399;
   display: flex;
   align-items: center;
   justify-content: center;
   margin: 0 auto 20px auto;
-  box-shadow: 0 0 20px rgba(16, 185, 129, 0.2);
+  box-shadow: 0 0 24px rgba(16, 185, 129, 0.35);
 }
 
 .success-card-title {
-  font-size: 1.6rem;
+  font-family: var(--font-heading);
+  font-size: 1.65rem;
   font-weight: 800;
-  color: var(--navy-900);
+  color: #FFFFFF;
   margin-bottom: 8px;
   letter-spacing: -0.02em;
 }
 
 .success-card-desc {
   font-size: 0.95rem;
-  color: var(--navy-600);
-  margin-bottom: 24px;
-  line-height: 1.5;
+  color: #94A3B8;
+  margin-bottom: 26px;
+  line-height: 1.6;
+}
+
+.success-card-desc strong {
+  color: #F8FAFC;
 }
 
 .success-details-box {
-  background-color: var(--navy-50);
-  border: 1px solid var(--navy-200);
+  background-color: rgba(9, 15, 30, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: var(--radius-lg);
-  padding: 18px;
+  padding: 20px;
   margin-bottom: 28px;
   text-align: left;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 13px;
 }
 
 .success-detail-row {
@@ -402,32 +489,74 @@
 }
 
 .success-detail-label {
-  color: var(--navy-500);
+  color: #94A3B8;
   font-weight: 500;
 }
 
 .success-detail-val {
-  color: var(--navy-900);
+  color: #F8FAFC;
   font-weight: 700;
-  font-family: monospace;
+  font-family: 'SFMono-Regular', Consolas, monospace;
 }
 
 .success-continue-btn {
   width: 100%;
   height: 48px;
-  background: var(--primary-gradient);
+  background: linear-gradient(135deg, #0052FF 0%, #4F46E5 50%, #6366F1 100%);
   color: var(--white);
   border-radius: var(--radius-md);
-  font-size: 1rem;
-  font-weight: 600;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  font-size: 0.98rem;
+  font-weight: 700;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
+  box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
+  cursor: pointer;
   transition: all var(--transition-fast);
 }
 
 .success-continue-btn:hover {
-  background: var(--primary-hover-gradient);
-  transform: translateY(-1px);
+  box-shadow: 0 6px 28px rgba(99, 102, 241, 0.6);
+  transform: translateY(-2px);
+  filter: brightness(1.05);
+}
+
+/* ==========================================================================
+   7. Responsive Viewport Adaptations
+   ========================================================================== */
+@media (min-width: 1024px) and (max-width: 1200px) {
+  .register-showcase {
+    padding: 44px 34px;
+  }
+
+  .register-showcase__title {
+    font-size: 2.05rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .register-main {
+    padding: 24px 16px;
+  }
+
+  .register-container {
+    padding: 28px 22px;
+    border-radius: 20px;
+  }
+
+  .register-header__title {
+    font-size: 1.65rem;
+  }
+}
+
+@media (max-width: 420px) {
+  .registration-success-card {
+    padding: 28px 18px;
+  }
+
+  .success-details-box {
+    padding: 14px;
+  }
 }
