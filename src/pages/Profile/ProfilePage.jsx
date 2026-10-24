@@ -41,6 +41,7 @@ export function ProfilePage({ user, onNavigate, onLogout, onUserUpdate }) {
   const [passwordErrors, setPasswordErrors] = useState({});
   const [passwordAlert, setPasswordAlert] = useState({ type: null, message: "" });
   const [showNewPassword, setShowNewPassword] = useState(false);
+  const [copiedAcc, setCopiedAcc] = useState(false);
   const [isSubmittingPassword, setIsSubmittingPassword] = useState(false);
   const [isSavingProfile, setIsSavingProfile] = useState(false);
   const [securityEvents, setSecurityEvents] = useState([]);
@@ -199,6 +200,19 @@ export function ProfilePage({ user, onNavigate, onLogout, onUserUpdate }) {
         type: "success",
         message: "Profile photo updated locally."
       });
+    }
+  };
+
+  /**
+   * Copy Account Number to Clipboard with visual confirmation
+   */
+  const handleCopyAccountNumber = () => {
+    if (accountNumber) {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(accountNumber);
+      }
+      setCopiedAcc(true);
+      setTimeout(() => setCopiedAcc(false), 2000);
     }
   };
 
@@ -508,16 +522,35 @@ export function ProfilePage({ user, onNavigate, onLogout, onUserUpdate }) {
 
           <div className="profile-hero__right">
             <span className="profile-hero__member-since">Member Since {memberSinceDate}</span>
-            <span className="profile-hero__account-pill">{accountNumber}</span>
+            <button
+              type="button"
+              className="profile-hero__account-pill"
+              onClick={handleCopyAccountNumber}
+              title="Click to copy account number"
+              aria-label="Copy account number"
+            >
+              <span>{accountNumber}</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="14" height="14" aria-hidden="true">
+                {copiedAcc ? (
+                  <polyline points="20 6 9 17 4 12" />
+                ) : (
+                  <>
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                    <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
+                  </>
+                )}
+              </svg>
+              <span className="account-pill__tooltip">{copiedAcc ? "Copied!" : "Copy"}</span>
+            </button>
           </div>
         </section>
 
         {/* 2-Column Main Content Grid */}
         <div className="profile-grid">
-          
+
           {/* Left Column: Personal Information & Account Details */}
           <div className="profile-column">
-            
+
             {/* 1. Personal Information Card */}
             <div className="profile-card">
               <div className="profile-card__header">
@@ -548,7 +581,7 @@ export function ProfilePage({ user, onNavigate, onLogout, onUserUpdate }) {
                 /* Editable Form Mode */
                 <form onSubmit={handleSaveProfile} noValidate>
                   <div className="info-fields-list">
-                    
+
                     {/* Full Name Input */}
                     <div className="info-field-row">
                       <label htmlFor="profile-fullname-input" className="info-field-label">
@@ -713,7 +746,7 @@ export function ProfilePage({ user, onNavigate, onLogout, onUserUpdate }) {
 
           {/* Right Column: Security & Preferences + Account Activity */}
           <div className="profile-column">
-            
+
             {/* 1. Security & Preferences Card */}
             <div className="profile-card">
               <div className="profile-card__header">
@@ -822,14 +855,35 @@ export function ProfilePage({ user, onNavigate, onLogout, onUserUpdate }) {
                     {/* New Password */}
                     <div className="info-field-row">
                       <label className="info-field-label">New Password</label>
-                      <input
-                        name="newPassword"
-                        type={showNewPassword ? "text" : "password"}
-                        className={`form-input ${passwordErrors.newPassword ? "form-input--error" : ""}`}
-                        placeholder="Min 8 chars with letters & numbers"
-                        value={passwordForm.newPassword}
-                        onChange={handlePasswordInputChange}
-                      />
+                      <div className="form-input-wrapper">
+                        <input
+                          name="newPassword"
+                          type={showNewPassword ? "text" : "password"}
+                          className={`form-input form-input--has-trailing ${passwordErrors.newPassword ? "form-input--error" : ""}`}
+                          placeholder="Min 8 chars with letters & numbers"
+                          value={passwordForm.newPassword}
+                          onChange={handlePasswordInputChange}
+                        />
+                        <button
+                          type="button"
+                          className="form-trailing-btn"
+                          onClick={() => setShowNewPassword((prev) => !prev)}
+                          aria-label={showNewPassword ? "Hide password" : "Show password"}
+                          title={showNewPassword ? "Hide password" : "Show password"}
+                        >
+                          {showNewPassword ? (
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16" aria-hidden="true">
+                              <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24" />
+                              <line x1="1" y1="1" x2="23" y2="23" />
+                            </svg>
+                          ) : (
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16" aria-hidden="true">
+                              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                              <circle cx="12" cy="12" r="3" />
+                            </svg>
+                          )}
+                        </button>
+                      </div>
                       {passwordErrors.newPassword && (
                         <span className="form-error-msg">{passwordErrors.newPassword}</span>
                       )}
