@@ -62,7 +62,7 @@ export function CategoryBreakdownChart({ categories = [] }) {
               cy="70"
               r={radius}
               fill="transparent"
-              stroke="#1E293B"
+              stroke="#F1F5F9"
               strokeWidth="16"
             />
 

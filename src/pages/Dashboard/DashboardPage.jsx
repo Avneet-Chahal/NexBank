@@ -234,7 +234,7 @@ export function DashboardPage({ user, onNavigate, onLogout }) {
                 </p>
               </div>
 
-              <div style={{ display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap" }}>
+              <div className="dashboard-welcome__actions">
                 <DataSourceBadge source={data.source} />
                 <div className="dashboard-status-badge">
                   <span className="status-dot" />
@@ -290,7 +290,7 @@ export function DashboardPage({ user, onNavigate, onLogout }) {
                     </div>
                   </div>
                   <div className="stat-card__value">{formatCurrency(metrics.availableBalance)}</div>
-                  <div className="stat-card__trend" style={{ color: "#10B981" }}>
+                  <div className="stat-card__trend stat-card__trend--success">
                     <span>&bull; Ready for instant transfer</span>
                   </div>
                 </div>
@@ -307,7 +307,7 @@ export function DashboardPage({ user, onNavigate, onLogout }) {
                     </div>
                   </div>
                   <div className="stat-card__value">{formatCurrency(metrics.totalIncome)}</div>
-                  <div className="stat-card__trend" style={{ color: "#10B981" }}>
+                  <div className="stat-card__trend stat-card__trend--success">
                     <span>&bull; {data.transactions.filter(t => t.type === "income").length} credits this month</span>
                   </div>
                 </div>
@@ -324,7 +324,7 @@ export function DashboardPage({ user, onNavigate, onLogout }) {
                     </div>
                   </div>
                   <div className="stat-card__value">{formatCurrency(metrics.totalExpenses)}</div>
-                  <div className="stat-card__trend" style={{ color: "#EF4444" }}>
+                  <div className="stat-card__trend stat-card__trend--danger">
                     <span>&bull; {metrics.expensePercentage}% of monthly cashflow</span>
                   </div>
                 </div>
@@ -340,7 +340,7 @@ export function DashboardPage({ user, onNavigate, onLogout }) {
                     </div>
                   </div>
                   <div className="stat-card__value">{formatCurrency(metrics.netSavings)}</div>
-                  <div className="stat-card__trend" style={{ color: "#4F46E5" }}>
+                  <div className="stat-card__trend stat-card__trend--primary">
                     <span>&bull; {metrics.savingsPercentage}% savings retention</span>
                   </div>
                 </div>
@@ -362,7 +362,7 @@ export function DashboardPage({ user, onNavigate, onLogout }) {
               {/* Transactions Explorer Card (Left) */}
               <section className="transactions-card" id="transactions-section">
                 <div className="transactions-card__header">
-                  <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                  <div className="transactions-card__title-group">
                     <h2 className="transactions-card__title">Recent Transactions</h2>
                     <span className="transactions-card__count">
                       {displayedTransactions.length} of {data.transactions.length}
@@ -438,7 +438,7 @@ export function DashboardPage({ user, onNavigate, onLogout }) {
                       </button>
                     </div>
 
-                    <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
+                    <div className="transactions-filter-actions">
                       <select
                         className="transactions-sort-select"
                         value={categoryFilter}
