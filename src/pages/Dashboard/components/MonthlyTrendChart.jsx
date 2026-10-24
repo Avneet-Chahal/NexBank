@@ -63,9 +63,9 @@ export function MonthlyTrendChart({ data = [] }) {
           aria-label="Monthly income and expense comparison chart"
         >
           {/* Subtle grid lines */}
-          <line x1="20" y1="20" x2={totalWidth - 20} y2="20" stroke="#334155" strokeDasharray="3 3" opacity="0.3" />
-          <line x1="20" y1={chartHeight / 2} x2={totalWidth - 20} y2={chartHeight / 2} stroke="#334155" strokeDasharray="3 3" opacity="0.3" />
-          <line x1="20" y1={chartHeight} x2={totalWidth - 20} y2={chartHeight} stroke="#334155" opacity="0.6" />
+          <line x1="20" y1="20" x2={totalWidth - 20} y2="20" stroke="#E2E8F0" strokeDasharray="3 3" />
+          <line x1="20" y1={chartHeight / 2} x2={totalWidth - 20} y2={chartHeight / 2} stroke="#E2E8F0" strokeDasharray="3 3" />
+          <line x1="20" y1={chartHeight} x2={totalWidth - 20} y2={chartHeight} stroke="#E2E8F0" />
 
           {/* Render bars for each month */}
           {data.map((item, idx) => {
@@ -93,7 +93,7 @@ export function MonthlyTrendChart({ data = [] }) {
                     width={barWidth * 2 + 16}
                     height={chartHeight + 25}
                     rx="6"
-                    fill="rgba(59, 130, 246, 0.08)"
+                    fill="rgba(0, 82, 255, 0.06)"
                   />
                 )}
 
@@ -124,7 +124,7 @@ export function MonthlyTrendChart({ data = [] }) {
                   x={groupX + barWidth + 2}
                   y={chartHeight + 22}
                   textAnchor="middle"
-                  fill="#94A3B8"
+                  fill="#64748B"
                   fontSize="11"
                   fontWeight="600"
                 >

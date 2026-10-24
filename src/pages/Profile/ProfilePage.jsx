@@ -66,6 +66,8 @@ export function ProfilePage({ user, onNavigate, onLogout, onUserUpdate }) {
         const res = await fetch("http://localhost:5000/api/users/security-events", {
           headers: token ? { Authorization: `Bearer ${token}` } : {}
         });
+        if (res.ok) {
+          const json = await res.json();
           if (json.data) {
             const list = Array.isArray(json.data) ? json.data : (json.data.events || []);
             if (list.length > 0) {
@@ -73,6 +75,7 @@ export function ProfilePage({ user, onNavigate, onLogout, onUserUpdate }) {
               return;
             }
           }
+        }
       } catch (err) {
         console.warn("Using offline security events fallback:", err);
       }
