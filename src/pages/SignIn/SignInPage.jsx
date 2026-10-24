@@ -208,7 +208,7 @@ export function SignInPage({ onNavigate, onLoginSuccess }) {
 
           {/* Mobile Brand Header */}
           <div className="signin-mobile-header">
-            <BrandLogo size="default" showTagline onClick={() => onNavigate && onNavigate("landing")} />
+            <BrandLogo size="default" light showTagline onClick={() => onNavigate && onNavigate("landing")} />
           </div>
 
           {/* Back to Home Navigation */}

@@ -198,7 +198,7 @@ export function RegisterPage({ onNavigate }) {
 
           {/* Mobile Brand Header */}
           <div className="register-mobile-header">
-            <BrandLogo size="default" showTagline onClick={() => onNavigate && onNavigate("landing")} />
+            <BrandLogo size="default" light showTagline onClick={() => onNavigate && onNavigate("landing")} />
           </div>
 
           {/* Render Success View if Registration Completed */}
