@@ -1,0 +1,384 @@
+/**
+ * NexBank – Virtual Card Controls Stylesheet
+ */
+
+.cards-layout {
+  min-height: 100vh;
+  background-color: var(--navy-50);
+  display: flex;
+  flex-direction: column;
+}
+
+.cards-main {
+  flex: 1;
+  max-width: 1280px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 32px 24px 60px 24px;
+}
+
+.cards-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.cards-header__title {
+  font-size: 1.85rem;
+  font-weight: 800;
+  color: var(--navy-900);
+  letter-spacing: -0.03em;
+}
+
+.cards-header__subtitle {
+  font-size: 0.95rem;
+  color: var(--navy-500);
+  margin-top: 4px;
+}
+
+/* Two-column layout */
+.cards-content-grid {
+  display: grid;
+  grid-template-columns: 1.15fr 1fr;
+  gap: 32px;
+}
+
+@media (max-width: 960px) {
+  .cards-content-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Premium 3D Card Presentation */
+.card-display-section {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.premium-card-stage {
+  perspective: 1000px;
+}
+
+.premium-card {
+  width: 100%;
+  max-width: 480px;
+  aspect-ratio: 1.586 / 1;
+  border-radius: 20px;
+  padding: 28px;
+  color: var(--white);
+  background: linear-gradient(135deg, #070D1B 0%, #172554 45%, #0052FF 100%);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 20px 40px -10px rgba(0, 82, 255, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: all 400ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.premium-card:hover {
+  transform: translateY(-4px) rotateX(2deg) rotateY(-2deg);
+  box-shadow: 0 26px 50px -10px rgba(0, 82, 255, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.2);
+}
+
+.premium-card--frozen {
+  background: linear-gradient(135deg, #1E293B 0%, #334155 60%, #64748B 100%);
+  filter: grayscale(0.5);
+}
+
+.premium-card--frozen::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(224, 242, 254, 0.15);
+  backdrop-filter: blur(1.5px);
+  pointer-events: none;
+}
+
+.card-ambient-glow {
+  position: absolute;
+  top: -80px;
+  right: -80px;
+  width: 250px;
+  height: 250px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(96, 165, 250, 0.3) 0%, transparent 70%);
+}
+
+.card-frozen-ribbon {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background-color: #EF4444;
+  color: var(--white);
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  z-index: 5;
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
+}
+
+.card-top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 2;
+}
+
+.card-emv-chip {
+  width: 44px;
+  height: 34px;
+  background: linear-gradient(135deg, #D4AF37 0%, #FFDF73 50%, #AA8010 100%);
+  border-radius: 6px;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  position: relative;
+}
+
+.card-emv-chip::after {
+  content: "";
+  position: absolute;
+  top: 10px;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: rgba(0, 0, 0, 0.25);
+}
+
+.card-brand-badge {
+  font-size: 1.15rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.card-number-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 18px 0;
+  z-index: 2;
+}
+
+.card-number-text {
+  font-family: monospace;
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: #F8FAFC;
+}
+
+@media (max-width: 480px) {
+  .card-number-text {
+    font-size: 1.1rem;
+  }
+}
+
+.card-eye-btn {
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: var(--white);
+  padding: 6px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-fast);
+}
+
+.card-eye-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.card-bottom-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  z-index: 2;
+}
+
+.card-holder-name {
+  font-size: 0.92rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.card-meta-label {
+  font-size: 0.65rem;
+  color: #94A3B8;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  display: block;
+}
+
+.card-meta-val {
+  font-family: monospace;
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+
+/* Card Controls Card */
+.card-controls-card {
+  background-color: var(--white);
+  border: 1px solid var(--navy-200);
+  border-radius: var(--radius-xl);
+  padding: 28px;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.control-group-header {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--navy-900);
+  margin-bottom: 4px;
+}
+
+.control-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--navy-100);
+}
+
+.control-toggle-info h4 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--navy-900);
+}
+
+.control-toggle-info p {
+  font-size: 0.82rem;
+  color: var(--navy-500);
+  margin-top: 2px;
+}
+
+/* Switch UI */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 48px;
+  height: 26px;
+  flex-shrink: 0;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  inset: 0;
+  background-color: #CBD5E1;
+  transition: 0.25s;
+  border-radius: 34px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 20px;
+  width: 20px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: 0.25s;
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+input:checked + .slider {
+  background-color: var(--primary-500);
+}
+
+input:checked + .slider:before {
+  transform: translateX(22px);
+}
+
+/* Spending Limit Slider */
+.limit-control-box {
+  background-color: var(--navy-50);
+  padding: 18px 20px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--navy-200);
+}
+
+.limit-display-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 12px;
+}
+
+.limit-current-val {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--navy-900);
+}
+
+.limit-slider-range {
+  width: 100%;
+  accent-color: var(--primary-500);
+  height: 6px;
+  cursor: pointer;
+}
+
+.limit-presets-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+.limit-preset-btn {
+  padding: 4px 10px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  border-radius: var(--radius-sm);
+  background-color: var(--white);
+  border: 1px solid var(--navy-200);
+  color: var(--navy-700);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.limit-preset-btn:hover {
+  border-color: var(--primary-500);
+  color: var(--primary-600);
+}
+
+/* Card Activity Box */
+.card-activity-card {
+  background-color: var(--white);
+  border: 1px solid var(--navy-200);
+  border-radius: var(--radius-xl);
+  padding: 24px;
+  box-shadow: var(--shadow-sm);
+}
+
+.activity-item-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--navy-100);
+}
+
+.activity-item-card:last-child {
+  border-bottom: none;
+}

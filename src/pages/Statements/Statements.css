@@ -1,0 +1,306 @@
+/**
+ * NexBank – Statements & Digital Receipts Stylesheet
+ */
+
+.statements-layout {
+  min-height: 100vh;
+  background-color: var(--navy-50);
+  display: flex;
+  flex-direction: column;
+}
+
+.statements-main {
+  flex: 1;
+  max-width: 1280px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 32px 24px 60px 24px;
+}
+
+.statements-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.statements-header__title {
+  font-size: 1.85rem;
+  font-weight: 800;
+  color: var(--navy-900);
+  letter-spacing: -0.03em;
+}
+
+.statements-header__subtitle {
+  font-size: 0.95rem;
+  color: var(--navy-500);
+  margin-top: 4px;
+}
+
+.statements-header__actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.statement-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: var(--radius-md);
+  font-size: 0.86rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.statement-action-btn--secondary {
+  background-color: var(--white);
+  border: 1px solid var(--navy-200);
+  color: var(--navy-700);
+  box-shadow: var(--shadow-xs);
+}
+
+.statement-action-btn--secondary:hover {
+  background-color: var(--navy-50);
+  border-color: var(--navy-300);
+}
+
+.statement-action-btn--primary {
+  background: var(--primary-gradient);
+  color: var(--white);
+  box-shadow: 0 4px 12px rgba(0, 82, 255, 0.2);
+}
+
+.statement-action-btn--primary:hover {
+  background: var(--primary-hover-gradient);
+}
+
+/* Filter Card */
+.statement-filter-card {
+  background-color: var(--white);
+  border: 1px solid var(--navy-200);
+  border-radius: var(--radius-xl);
+  padding: 22px 24px;
+  margin-bottom: 28px;
+  box-shadow: var(--shadow-sm);
+}
+
+.statement-filter-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.preset-pills {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.date-inputs-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* Statement Document Card (Viewable & Printable) */
+.statement-doc-card {
+  background-color: var(--white);
+  border: 1px solid var(--navy-200);
+  border-radius: var(--radius-xl);
+  padding: 36px 40px;
+  box-shadow: var(--shadow-card);
+  margin-bottom: 32px;
+}
+
+.statement-doc-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding-bottom: 24px;
+  border-bottom: 2px solid var(--navy-100);
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.statement-doc-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--navy-900);
+}
+
+.statement-doc-meta {
+  font-size: 0.85rem;
+  color: var(--navy-500);
+  margin-top: 4px;
+}
+
+.statement-summary-bar {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  background-color: var(--navy-50);
+  padding: 18px 20px;
+  border-radius: var(--radius-lg);
+  margin-bottom: 28px;
+}
+
+@media (max-width: 768px) {
+  .statement-summary-bar {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.summary-bar-stat label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--navy-500);
+  letter-spacing: 0.05em;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.summary-bar-stat span {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--navy-900);
+}
+
+/* Statement Table */
+.statement-table-wrap {
+  overflow-x: auto;
+}
+
+.statement-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+  text-align: left;
+}
+
+.statement-table th {
+  padding: 12px 14px;
+  background-color: var(--navy-100);
+  color: var(--navy-800);
+  font-weight: 700;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-bottom: 1px solid var(--navy-200);
+}
+
+.statement-table td {
+  padding: 14px;
+  border-bottom: 1px solid var(--navy-100);
+  color: var(--navy-800);
+}
+
+.statement-table tr:hover td {
+  background-color: var(--navy-50);
+}
+
+.view-receipt-link {
+  color: var(--primary-600);
+  font-weight: 600;
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-size: 0.82rem;
+  text-decoration: underline;
+}
+
+/* Receipt Modal */
+.receipt-card {
+  background-color: var(--white);
+  border-radius: var(--radius-xl);
+  padding: 32px;
+  max-width: 460px;
+  width: 100%;
+  box-shadow: var(--shadow-xl);
+  position: relative;
+  border-top: 6px solid var(--primary-500);
+}
+
+.receipt-header {
+  text-align: center;
+  padding-bottom: 20px;
+  border-bottom: 1px dashed var(--navy-200);
+  margin-bottom: 20px;
+}
+
+.receipt-amount-box {
+  margin: 16px 0;
+  font-size: 2rem;
+  font-weight: 800;
+}
+
+.receipt-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.receipt-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.88rem;
+}
+
+.receipt-row-label {
+  color: var(--navy-500);
+}
+
+.receipt-row-value {
+  font-weight: 600;
+  color: var(--navy-900);
+}
+
+.receipt-security-token {
+  font-family: monospace;
+  font-size: 0.72rem;
+  color: var(--navy-400);
+  background-color: var(--navy-50);
+  padding: 8px 10px;
+  border-radius: 6px;
+  text-align: center;
+  word-break: break-all;
+  margin-bottom: 20px;
+}
+
+/* Print CSS */
+@media print {
+  body {
+    background-color: #FFFFFF !important;
+    color: #000000 !important;
+  }
+
+  .nex-navbar,
+  .statements-header__actions,
+  .statement-filter-card,
+  .view-receipt-link,
+  .modal-overlay {
+    display: none !important;
+  }
+
+  .statements-main {
+    padding: 0 !important;
+    max-width: 100% !important;
+  }
+
+  .statement-doc-card {
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+  }
+}

@@ -1,0 +1,241 @@
+/**
+ * NexBank – Savings Goals Stylesheet
+ */
+
+.goals-layout {
+  min-height: 100vh;
+  background-color: var(--navy-50);
+  display: flex;
+  flex-direction: column;
+}
+
+.goals-main {
+  flex: 1;
+  max-width: 1280px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 32px 24px 60px 24px;
+}
+
+.goals-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.goals-header__title {
+  font-size: 1.85rem;
+  font-weight: 800;
+  color: var(--navy-900);
+  letter-spacing: -0.03em;
+}
+
+.goals-header__subtitle {
+  font-size: 0.95rem;
+  color: var(--navy-500);
+  margin-top: 4px;
+}
+
+.goals-header__actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.goals-filter-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.goals-tabs {
+  display: flex;
+  gap: 8px;
+}
+
+.goal-tab-btn {
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: var(--navy-600);
+  background-color: var(--navy-100);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.goal-tab-btn--active {
+  background-color: var(--navy-900);
+  color: var(--white);
+}
+
+.goals-sort-select {
+  height: 36px;
+  padding: 0 12px;
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: var(--navy-700);
+  background-color: var(--white);
+  border: 1px solid var(--navy-200);
+  border-radius: var(--radius-md);
+  outline: none;
+  cursor: pointer;
+}
+
+/* Goals Grid */
+.goals-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  gap: 24px;
+}
+
+.goal-card {
+  background-color: var(--white);
+  border: 1px solid var(--navy-200);
+  border-radius: var(--radius-xl);
+  padding: 24px;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  position: relative;
+  overflow: hidden;
+}
+
+.goal-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.goal-card--completed {
+  border-color: #A7F3D0;
+  background: linear-gradient(180deg, #FFFFFF 0%, #F0FDF4 100%);
+}
+
+.goal-card__top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.goal-card__badge {
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.goal-card__badge--active {
+  background-color: #EFF6FF;
+  color: #1D4ED8;
+  border: 1px solid #DBEAFE;
+}
+
+.goal-card__badge--completed {
+  background-color: #ECFDF5;
+  color: #065F46;
+  border: 1px solid #A7F3D0;
+}
+
+.goal-card__title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--navy-900);
+  margin-bottom: 4px;
+}
+
+.goal-card__meta {
+  font-size: 0.8rem;
+  color: var(--navy-500);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.goal-card__amounts {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin: 16px 0 8px 0;
+}
+
+.goal-card__saved {
+  font-size: 1.45rem;
+  font-weight: 800;
+  color: var(--navy-900);
+}
+
+.goal-card__target {
+  font-size: 0.85rem;
+  color: var(--navy-500);
+}
+
+.goal-progress-track {
+  height: 8px;
+  background-color: var(--navy-100);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.goal-progress-bar {
+  height: 100%;
+  border-radius: var(--radius-full);
+  background: linear-gradient(90deg, #0052FF 0%, #1D4ED8 100%);
+  transition: width 400ms ease;
+}
+
+.goal-progress-bar--completed {
+  background: linear-gradient(90deg, #10B981 0%, #059669 100%);
+}
+
+.goal-card__footer-info {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  color: var(--navy-500);
+  margin-bottom: 18px;
+}
+
+.goal-card__actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding-top: 14px;
+  border-top: 1px solid var(--navy-100);
+  margin-top: auto;
+}
+
+.goal-contribute-btn {
+  flex: 1;
+  padding: 8px 12px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  border-radius: var(--radius-md);
+  background-color: #EFF6FF;
+  color: #1D4ED8;
+  border: 1px solid #BFDBFE;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.goal-contribute-btn:hover {
+  background-color: #DBEAFE;
+}
+
+.goal-secondary-actions {
+  display: flex;
+  gap: 6px;
+}

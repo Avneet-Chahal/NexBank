@@ -1,0 +1,31 @@
+{
+  "name": "nexbank-server",
+  "version": "1.0.0",
+  "description": "NexBank Core Backend REST API for CA-2",
+  "type": "module",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "demo:commonjs": "node src/examples/commonjs/runInterestDemo.cjs",
+    "demo:http": "node src/examples/nativeHttpServer.js",
+    "test:security": "node tests/transaction-auth-test.mjs",
+    "test:streams": "node tests/stream-test.mjs",
+    "test:http": "node tests/native-http-test.mjs",
+    "test:db": "node tests/db-connection-test.mjs",
+    "test:v2": "node tests/nexbank-v2-features-test.mjs",
+    "test": "node tests/transaction-auth-test.mjs && node tests/stream-test.mjs && node tests/native-http-test.mjs && node tests/db-connection-test.mjs && node tests/promise-chaining-test.mjs && node tests/nexbank-v2-features-test.mjs"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.11.3",
+    "multer": "^2.4.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.4"
+  }
+}
