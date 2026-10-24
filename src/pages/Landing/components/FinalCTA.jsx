@@ -15,7 +15,7 @@ export function FinalCTA({ onNavigate }) {
   return (
     <section className="final-cta-section">
       <div className="final-cta-section__container">
-        
+
         <div className="final-cta-card">
           <div className="final-cta-card__glow" />
 
@@ -23,7 +23,7 @@ export function FinalCTA({ onNavigate }) {
             <h2 className="final-cta-card__title">
               Ready to Experience Better Banking?
             </h2>
-            
+
             <p className="final-cta-card__subtitle">
               Open your NexBank account today and take control of your financial future.
             </p>

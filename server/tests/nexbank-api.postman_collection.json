@@ -1,0 +1,458 @@
+{
+  "info": {
+    "_postman_id": "nexbank-ca2-api-collection",
+    "name": "NexBank Digital Banking Core API (CA-2)",
+    "description": "Comprehensive Postman test collection for NexBank backend REST API covering authentication, accounts, transactions CRUD, validations, and security.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000",
+      "type": "string"
+    },
+    {
+      "key": "authToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "createdTxId",
+      "value": "TX-901",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Health Check",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Accept", "value": "application/json" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/health",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "health"]
+        },
+        "description": "Retrieves the server operational health and database connectivity status."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200 OK', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test('Service is reported healthy', function () {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json.success).to.be.true;",
+              "    pm.expect(json.data.status).to.eql('HEALTHY');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Account Summary",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Accept", "value": "application/json" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/accounts/summary",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "accounts", "summary"]
+        },
+        "description": "Retrieves read-only account ledger metrics and balance."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200 OK', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test('Account summary contains valid metrics', function () {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json.success).to.be.true;",
+              "    pm.expect(json.data).to.have.property('balance');",
+              "    pm.expect(json.data).to.have.property('accountNumber');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. User Registration",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"fullName\": \"Postman Test User\",\n  \"email\": \"postman.user.{{$timestamp}}@nexbank.com\",\n  \"password\": \"SecurePass@123\",\n  \"mobile\": \"9876543210\",\n  \"accountType\": \"Savings Account\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/auth/register",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "auth", "register"]
+        },
+        "description": "Registers a new customer account and returns a signed JWT."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Registration succeeds with HTTP 201 Created', function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "pm.test('Response includes token and user payload', function () {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json.success).to.be.true;",
+              "    pm.expect(json).to.have.property('token');",
+              "    pm.expect(json.user).to.have.property('accountNumber');",
+              "    pm.expect(json.user).to.not.have.property('password');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. User Login",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"demo@nexbank.com\",\n  \"password\": \"Demo@123\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/auth/login",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "auth", "login"]
+        },
+        "description": "Authenticates customer credentials and saves JWT token to collection variable 'authToken'."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Login returns HTTP 200 OK', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test('Token received and saved to collection variable', function () {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json.success).to.be.true;",
+              "    pm.expect(json.token).to.be.a('string');",
+              "    pm.collectionVariables.set('authToken', json.token);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Authenticated Profile",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{authToken}}" },
+          { "key": "Accept", "value": "application/json" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/auth/me",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "auth", "me"]
+        },
+        "description": "Verifies authenticated customer profile using the Bearer JWT token."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Authenticated profile returns HTTP 200 OK', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test('Profile data matches authenticated session', function () {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json.success).to.be.true;",
+              "    pm.expect(json.data.email).to.eql('demo@nexbank.com');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. Transaction Listing",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{authToken}}" },
+          { "key": "Accept", "value": "application/json" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/transactions?type=all&sortBy=newest",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "transactions"],
+          "query": [
+            { "key": "type", "value": "all" },
+            { "key": "sortBy", "value": "newest" }
+          ]
+        },
+        "description": "Lists customer transactions with optional filtering and sorting query parameters."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200 OK', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test('Response contains transactions array', function () {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json.success).to.be.true;",
+              "    pm.expect(json.data).to.be.an('array');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "7. Create Transaction",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{authToken}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Postman Test Transfer\",\n  \"category\": \"Utilities\",\n  \"type\": \"expense\",\n  \"amount\": 850.50,\n  \"date\": \"2026-10-23\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/transactions",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "transactions"]
+        },
+        "description": "Creates a new transaction for the authenticated customer and sets createdTxId variable."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 201 Created', function () {",
+              "    pm.response.to.have.status(201);",
+              "});",
+              "pm.test('Location header and ID are returned', function () {",
+              "    const json = pm.response.json();",
+              "    pm.expect(pm.response.headers.has('Location')).to.be.true;",
+              "    const id = json.data.id || json.data._id;",
+              "    pm.expect(id).to.be.ok;",
+              "    pm.collectionVariables.set('createdTxId', id);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "8. Update Transaction",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{authToken}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Postman Test Transfer (Updated)\",\n  \"amount\": 950.00\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/transactions/{{createdTxId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "transactions", "{{createdTxId}}"]
+        },
+        "description": "Partially updates an existing transaction owned by the customer."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200 OK', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test('Transaction title was updated', function () {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json.data.title).to.eql('Postman Test Transfer (Updated)');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "9. Retrieve Transaction by ID",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{authToken}}" },
+          { "key": "Accept", "value": "application/json" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/transactions/{{createdTxId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "transactions", "{{createdTxId}}"]
+        },
+        "description": "Retrieves a single transaction by ID."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200 OK', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test('Transaction ID matches requested ID', function () {",
+              "    const json = pm.response.json();",
+              "    const id = json.data.id || json.data._id || json.data.transactionId;",
+              "    pm.expect(id).to.be.ok;",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "10. Delete Transaction",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{authToken}}" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/transactions/{{createdTxId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "transactions", "{{createdTxId}}"]
+        },
+        "description": "Deletes the created transaction record."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status code is 200 OK', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "pm.test('Response confirms permanent deletion', function () {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json.success).to.be.true;",
+              "    pm.expect(json).to.have.property('deletedId');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "11. Validation Failure (Negative Amount & Restricted Fields)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{authToken}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"A\",\n  \"category\": \"Utilities\",\n  \"type\": \"expense\",\n  \"amount\": -500,\n  \"balance\": 9999999\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/transactions",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "transactions"]
+        },
+        "description": "Tests validation middleware rejection on illegal balance injection or invalid amount."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Returns HTTP 400 Bad Request on validation failure', function () {",
+              "    pm.response.to.have.status(400);",
+              "});",
+              "pm.test('Response indicates validation error', function () {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json.success).to.be.false;",
+              "    pm.expect(json.error).to.be.an('object');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "12. Unauthenticated Access Rejection",
+      "request": {
+        "method": "GET",
+        "header": [
+          { "key": "Accept", "value": "application/json" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/users/me",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "users", "me"]
+        },
+        "description": "Tests protected route rejection when Authorization header is omitted."
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Returns HTTP 401 Unauthorized for missing token', function () {",
+              "    pm.response.to.have.status(401);",
+              "});",
+              "pm.test('Error message reports missing Authorization header', function () {",
+              "    const json = pm.response.json();",
+              "    pm.expect(json.success).to.be.false;",
+              "    pm.expect(json.error.statusCode).to.eql(401);",
+              "});"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

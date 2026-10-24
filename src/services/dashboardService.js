@@ -1,51 +1,132 @@
-/**
- * NexBank – Dashboard Financial & Transaction Service
- */
+import { getStorageItem, setStorageItem } from "../utils/storage.js";
+import { getAuthToken } from "./authService.js";
 
-// Fallback dataset for offline / error resilience
-const FALLBACK_DASHBOARD_DATA = {
-  transactions: [
-    { id: "TX-901", title: "Amazon", category: "Shopping", type: "expense", amount: 2499, date: "2026-08-19", status: "Completed" },
-    { id: "TX-902", title: "Salary Credit", category: "Income", type: "income", amount: 52000, date: "2026-08-18", status: "Completed" },
-    { id: "TX-903", title: "Electricity Bill", category: "Utilities", type: "expense", amount: 1850, date: "2026-08-17", status: "Completed" },
-    { id: "TX-904", title: "Netflix Subscription", category: "Entertainment", type: "expense", amount: 649, date: "2026-08-16", status: "Completed" },
-    { id: "TX-905", title: "Food Delivery", category: "Food", type: "expense", amount: 520, date: "2026-08-15", status: "Completed" },
-    { id: "TX-906", title: "Freelance Payout", category: "Income", type: "income", amount: 15000, date: "2026-08-14", status: "Completed" },
-    { id: "TX-907", title: "Grocery Supermarket", category: "Groceries", type: "expense", amount: 3200, date: "2026-08-12", status: "Completed" },
-    { id: "TX-908", title: "Fiber Internet", category: "Utilities", type: "expense", amount: 999, date: "2026-08-10", status: "Completed" }
-  ],
-  recentActivities: [
-    { id: "ACT-1", text: "Account registration completed & provisioned", timestamp: "Today, 09:30 AM", status: "success" },
-    { id: "ACT-2", text: "NexShield™ 256-bit encryption verified", timestamp: "Yesterday, 04:15 PM", status: "success" },
-    { id: "ACT-3", text: "Last security session verified from current device", timestamp: "Aug 18, 08:20 PM", status: "info" },
-    { id: "ACT-4", text: "Monthly digital bank statement generated", timestamp: "Aug 15, 11:00 AM", status: "info" }
-  ]
-};
+// Storage key for non-sensitive transaction explorer UI preferences
+const TX_FILTER_STORAGE_KEY = "nexbank_tx_filter_preferences";
 
 /**
- * Fetches dashboard financial data using Fetch API
-
- * @returns {Promise<{ transactions: Array<object>, recentActivities: Array<object> }>}
+ * Retrieves saved transaction filter and sort preferences from localStorage
+ * Fallbacks to sensible defaults if none exist.
+ * 
+ * @returns {{ typeFilter: string, categoryFilter: string, sortBy: string }}
  */
-export async function fetchDashboardData() {
-  // Controlled simulated network latency to display polished loading state
-  await new Promise((resolve) => setTimeout(resolve, 400));
+export function getSavedFilterPreferences() {
+  const defaults = { typeFilter: "all", categoryFilter: "all", sortBy: "newest" };
+  const saved = getStorageItem(TX_FILTER_STORAGE_KEY);
 
+  if (saved && typeof saved === "object") {
+    const validTypes = ["all", "income", "expense"];
+    const validSorts = ["newest", "oldest", "highest", "lowest"];
+
+    return {
+      typeFilter: validTypes.includes(saved.typeFilter) ? saved.typeFilter : defaults.typeFilter,
+      categoryFilter: typeof saved.categoryFilter === "string" ? saved.categoryFilter : defaults.categoryFilter,
+      sortBy: validSorts.includes(saved.sortBy) ? saved.sortBy : defaults.sortBy
+    };
+  }
+
+  return defaults;
+}
+
+/**
+ * Persists only non-sensitive transaction filter & sort preferences to localStorage
+ * 
+ * @param {object} preferences
+ * @returns {boolean}
+ */
+export function saveFilterPreferences(preferences) {
+  if (!preferences || typeof preferences !== "object") return false;
+
+  const validTypes = ["all", "income", "expense"];
+  const validSorts = ["newest", "oldest", "highest", "lowest"];
+
+  const safePayload = {
+    typeFilter: validTypes.includes(preferences.typeFilter) ? preferences.typeFilter : "all",
+    categoryFilter: typeof preferences.categoryFilter === "string" ? preferences.categoryFilter : "all",
+    sortBy: validSorts.includes(preferences.sortBy) ? preferences.sortBy : "newest"
+  };
+
+  return setStorageItem(TX_FILTER_STORAGE_KEY, safePayload);
+}
+
+/**
+ * Fetches dashboard financial data using Fetch API with robust error handling & JSON validation
+ * 
+ * @param {object} [options]
+ * @param {AbortSignal} [options.signal] - Optional abort signal
+ * @returns {Promise<{ transactions: Array<object>, recentActivities: Array<object>, source: string }>}
+ */
+export async function fetchDashboardData(options = {}) {
+  const { signal } = options;
+
+  // 1. Attempt to fetch live transactions from Express Backend REST API
   try {
-    // Fetch API call
-    const response = await fetch("/data/dashboardData.json");
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+    const token = getAuthToken();
+    const headers = { Accept: "application/json" };
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
     }
 
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.warn("Fetch API failed, utilizing secure fallback data:", error);
-    // Graceful offline fallback
-    return FALLBACK_DASHBOARD_DATA;
+    const response = await fetch("http://localhost:5000/api/transactions", {
+      method: "GET",
+      headers,
+      signal
+    });
+
+    if (response.ok) {
+      const apiResult = await response.json();
+      if (apiResult && Array.isArray(apiResult.data)) {
+        return {
+          transactions: apiResult.data,
+          source: apiResult.source || "Express Backend (In-Memory)",
+          recentActivities: [
+            { id: "ACT-1", text: "Live transactions synchronized with Express backend", timestamp: "Just now", status: "success" },
+            { id: "ACT-2", text: "NexShield™ 256-bit encryption verified", timestamp: "Today, 09:30 AM", status: "success" },
+            { id: "ACT-3", text: "Last security session verified from current device", timestamp: "Today, 08:20 AM", status: "info" },
+            { id: "ACT-4", text: "Monthly digital bank statement generated", timestamp: "Aug 15, 11:00 AM", status: "info" }
+          ]
+        };
+      }
+    }
+  } catch (backendError) {
+    if (backendError.name === "AbortError") throw backendError;
+    console.warn("Backend API unreachable, using local JSON fallback:", backendError.message);
   }
+
+  // 2. Controlled simulated network latency to display polished loading state
+  await new Promise((resolve) => setTimeout(resolve, 300));
+
+  // REST API call using native Fetch API (fallback)
+  const response = await fetch("/data/dashboardData.json", {
+    method: "GET",
+    headers: {
+      Accept: "application/json"
+    },
+    signal
+  });
+
+  if (!response.ok) {
+    throw new Error(
+      `Failed to load financial records from banking API (HTTP ${response.status}: ${response.statusText || "Server Error"})`
+    );
+  }
+
+  let data;
+  try {
+    data = await response.json();
+  } catch (parseError) {
+    throw new Error("Invalid response format: Failed to parse JSON financial records.");
+  }
+
+  if (!data || typeof data !== "object" || !Array.isArray(data.transactions)) {
+    throw new Error("Malformed JSON: Expected banking transactions array in API response.");
+  }
+
+  return {
+    transactions: data.transactions,
+    source: "Resilient Demo Fallback (Offline / Dev)",
+    recentActivities: Array.isArray(data.recentActivities) ? data.recentActivities : []
+  };
 }
 
 /**
@@ -74,21 +155,17 @@ export function calculateFinancialMetrics(transactions = [], baseBalance = 84250
     };
   }
 
-  // reduce() for computing total income
   const totalIncome = transactions
     .filter((tx) => tx.type === "income")
-    .reduce((accumulator, currentTx) => accumulator + Number(currentTx.amount), 0);
+    .reduce((acc, tx) => acc + Number(tx.amount || 0), 0);
 
-  // reduce() for computing total expenses
   const totalExpenses = transactions
     .filter((tx) => tx.type === "expense")
-    .reduce((accumulator, currentTx) => accumulator + Number(currentTx.amount), 0);
+    .reduce((acc, tx) => acc + Number(tx.amount || 0), 0);
 
-  // Dynamic calculations 
   const netSavings = Math.max(0, totalIncome - totalExpenses);
   const availableBalance = baseBalance;
 
-  // Percentage Calculations for Visual Statistics
   const totalFlow = totalIncome > 0 ? totalIncome : totalExpenses;
   const expensePercentage = totalFlow > 0 ? Math.min(100, Math.round((totalExpenses / totalFlow) * 100)) : 0;
   const savingsPercentage = totalFlow > 0 ? Math.max(0, 100 - expensePercentage) : 0;
@@ -103,42 +180,252 @@ export function calculateFinancialMetrics(transactions = [], baseBalance = 84250
   };
 }
 
+// Curated modern color palette for category charts
+const CATEGORY_COLORS = [
+  "#0052FF", // Primary Blue
+  "#8B5CF6", // Violet
+  "#10B981", // Emerald
+  "#F59E0B", // Amber
+  "#EC4899", // Pink
+  "#06B6D4", // Cyan
+  "#F97316", // Orange
+  "#6366F1", // Indigo
+  "#14B8A6"  // Teal
+];
+
 /**
- * Filters and sorts transactions without mutating the source array
+ * Calculates category-wise expense breakdown with percentages and color codes
+ * 
+ * @param {Array<object>} transactions 
+ * @returns {Array<{ category: string, total: number, count: number, percentage: number, color: string }>}
+ */
+export function calculateCategoryBreakdown(transactions = []) {
+  if (!Array.isArray(transactions) || transactions.length === 0) return [];
+
+  const expenseTx = transactions.filter((tx) => tx.type === "expense");
+  const totalExpense = expenseTx.reduce((sum, tx) => sum + Number(tx.amount || 0), 0);
+
+  if (totalExpense === 0) return [];
+
+  const map = {};
+  for (const tx of expenseTx) {
+    const cat = tx.category || "Uncategorized";
+    if (!map[cat]) {
+      map[cat] = { category: cat, total: 0, count: 0 };
+    }
+    map[cat].total += Number(tx.amount || 0);
+    map[cat].count += 1;
+  }
+
+  const result = Object.values(map)
+    .map((item, idx) => ({
+      ...item,
+      percentage: Math.round((item.total / totalExpense) * 100),
+      color: CATEGORY_COLORS[idx % CATEGORY_COLORS.length]
+    }))
+    .sort((a, b) => b.total - a.total);
+
+  return result;
+}
+
+/**
+ * Calculates monthly spending and income aggregates, plus month-over-month comparisons
+ * 
+ * @param {Array<object>} transactions 
+ * @returns {{
+ *   monthlyData: Array<{ monthLabel: string, monthKey: string, income: number, expense: number, net: number }>,
+ *   momComparison: {
+ *     hasComparison: boolean,
+ *     currentMonth: string,
+ *     previousMonth: string,
+ *     expenseChangePercent: number,
+ *     incomeChangePercent: number,
+ *     savingsChangePercent: number,
+ *     increasedSpending: boolean
+ *   }
+ * }}
+ */
+export function calculateMonthlyTrends(transactions = []) {
+  if (!Array.isArray(transactions) || transactions.length === 0) {
+    return {
+      monthlyData: [],
+      momComparison: {
+        hasComparison: false,
+        currentMonth: "",
+        previousMonth: "",
+        expenseChangePercent: 0,
+        incomeChangePercent: 0,
+        savingsChangePercent: 0,
+        increasedSpending: false
+      }
+    };
+  }
+
+  const monthlyGroups = {};
+
+  transactions.forEach((tx) => {
+    if (!tx.date) return;
+    const dateObj = new Date(tx.date);
+    if (isNaN(dateObj.getTime())) return;
+
+    const monthKey = `${dateObj.getFullYear()}-${String(dateObj.getMonth() + 1).padStart(2, "0")}`;
+    const monthLabel = dateObj.toLocaleDateString("en-US", { month: "short", year: "numeric" });
+
+    if (!monthlyGroups[monthKey]) {
+      monthlyGroups[monthKey] = {
+        monthKey,
+        monthLabel,
+        income: 0,
+        expense: 0,
+        net: 0
+      };
+    }
+
+    const amt = Number(tx.amount || 0);
+    if (tx.type === "income") {
+      monthlyGroups[monthKey].income += amt;
+    } else if (tx.type === "expense") {
+      monthlyGroups[monthKey].expense += amt;
+    }
+  });
+
+  // Calculate net for each month
+  Object.values(monthlyGroups).forEach((g) => {
+    g.net = Math.max(0, g.income - g.expense);
+  });
+
+  // Sort chronologically
+  const sortedMonths = Object.values(monthlyGroups).sort((a, b) => a.monthKey.localeCompare(b.monthKey));
+
+  // Determine Month-over-Month comparison
+  let momComparison = {
+    hasComparison: false,
+    currentMonth: "",
+    previousMonth: "",
+    expenseChangePercent: 0,
+    incomeChangePercent: 0,
+    savingsChangePercent: 0,
+    increasedSpending: false
+  };
+
+  if (sortedMonths.length >= 2) {
+    const cur = sortedMonths[sortedMonths.length - 1];
+    const prev = sortedMonths[sortedMonths.length - 2];
+
+    const expChange = prev.expense > 0
+      ? Math.round(((cur.expense - prev.expense) / prev.expense) * 100)
+      : cur.expense > 0 ? 100 : 0;
+
+    const incChange = prev.income > 0
+      ? Math.round(((cur.income - prev.income) / prev.income) * 100)
+      : cur.income > 0 ? 100 : 0;
+
+    const savChange = prev.net > 0
+      ? Math.round(((cur.net - prev.net) / prev.net) * 100)
+      : cur.net > 0 ? 100 : 0;
+
+    momComparison = {
+      hasComparison: true,
+      currentMonth: cur.monthLabel,
+      previousMonth: prev.monthLabel,
+      expenseChangePercent: expChange,
+      incomeChangePercent: incChange,
+      savingsChangePercent: savChange,
+      increasedSpending: expChange > 0
+    };
+  } else if (sortedMonths.length === 1) {
+    const cur = sortedMonths[0];
+    momComparison = {
+      hasComparison: false,
+      currentMonth: cur.monthLabel,
+      previousMonth: "N/A",
+      expenseChangePercent: 0,
+      incomeChangePercent: 0,
+      savingsChangePercent: 0,
+      increasedSpending: false
+    };
+  }
+
+  return {
+    monthlyData: sortedMonths,
+    momComparison
+  };
+}
+
+/**
+ * Filters and sorts transactions with support for text search, type, category, date range, and sort order
  * 
  * @param {Array<object>} transactions - Source transaction list
- * @param {string} searchQuery - Search query string
- * @param {'all' | 'income' | 'expense'} typeFilter - Type filter
- * @param {'newest' | 'oldest' | 'highest' | 'lowest'} sortBy - Sort option
+ * @param {object} filters
+ * @param {string} [filters.searchQuery=""]
+ * @param {'all' | 'income' | 'expense'} [filters.typeFilter="all"]
+ * @param {string} [filters.categoryFilter="all"]
+ * @param {string} [filters.startDate=""]
+ * @param {string} [filters.endDate=""]
+ * @param {'newest' | 'oldest' | 'highest' | 'lowest'} [filters.sortBy="newest"]
  * @returns {Array<object>} Filtered and sorted transactions
  */
 export function filterAndSortTransactions(
   transactions = [],
-  searchQuery = "",
-  typeFilter = "all",
-  sortBy = "newest"
+  filters = {}
 ) {
   if (!Array.isArray(transactions)) return [];
 
-  const query = searchQuery.trim().toLowerCase();
+  // Support both object form or legacy 4-parameter call
+  let searchQuery = "";
+  let typeFilter = "all";
+  let categoryFilter = "all";
+  let startDate = "";
+  let endDate = "";
+  let sortBy = "newest";
 
-  // Step 1: Filter transactions by Search Query & Type
+  if (typeof filters === "string" || arguments.length > 2) {
+    searchQuery = arguments[1] || "";
+    typeFilter = arguments[2] || "all";
+    sortBy = arguments[3] || "newest";
+  } else if (typeof filters === "object") {
+    searchQuery = filters.searchQuery || "";
+    typeFilter = filters.typeFilter || "all";
+    categoryFilter = filters.categoryFilter || "all";
+    startDate = filters.startDate || "";
+    endDate = filters.endDate || "";
+    sortBy = filters.sortBy || "newest";
+  }
+
+  const query = searchQuery.trim().toLowerCase();
+  const startTs = startDate ? new Date(startDate).getTime() : null;
+  const endTs = endDate ? new Date(endDate).setHours(23, 59, 59, 999) : null;
+
   const filtered = transactions.filter((tx) => {
-    // Matches title or category
+    // 1. Text Search matches title or category or status
     const matchesSearch =
       query === "" ||
-      tx.title.toLowerCase().includes(query) ||
-      tx.category.toLowerCase().includes(query);
+      (tx.title && tx.title.toLowerCase().includes(query)) ||
+      (tx.category && tx.category.toLowerCase().includes(query)) ||
+      (tx.status && tx.status.toLowerCase().includes(query));
 
-    // Matches transaction type
+    // 2. Matches transaction type
     const matchesType =
       typeFilter === "all" ||
-      tx.type.toLowerCase() === typeFilter.toLowerCase();
+      (tx.type && tx.type.toLowerCase() === typeFilter.toLowerCase());
 
-    return matchesSearch && matchesType;
+    // 3. Matches category
+    const matchesCategory =
+      categoryFilter === "all" ||
+      (tx.category && tx.category.toLowerCase() === categoryFilter.toLowerCase());
+
+    // 4. Matches date range
+    let matchesDate = true;
+    if (tx.date && (startTs || endTs)) {
+      const txTime = new Date(tx.date).getTime();
+      if (startTs && txTime < startTs) matchesDate = false;
+      if (endTs && txTime > endTs) matchesDate = false;
+    }
+
+    return matchesSearch && matchesType && matchesCategory && matchesDate;
   });
 
-  // Step 2: Non-mutating Sort using Spread Operator
+  // Non-mutating Sort using Spread Operator
   const sorted = [...filtered].sort((a, b) => {
     if (sortBy === "newest") {
       return new Date(b.date).getTime() - new Date(a.date).getTime();
@@ -147,15 +434,30 @@ export function filterAndSortTransactions(
       return new Date(a.date).getTime() - new Date(b.date).getTime();
     }
     if (sortBy === "highest") {
-      return b.amount - a.amount;
+      return Number(b.amount || 0) - Number(a.amount || 0);
     }
     if (sortBy === "lowest") {
-      return a.amount - b.amount;
+      return Number(a.amount || 0) - Number(b.amount || 0);
     }
     return 0;
   });
 
   return sorted;
+}
+
+/**
+ * Extracts unique categories from transactions list
+ * 
+ * @param {Array<object>} transactions 
+ * @returns {Array<string>}
+ */
+export function getAvailableCategories(transactions = []) {
+  if (!Array.isArray(transactions)) return [];
+  const set = new Set();
+  transactions.forEach((tx) => {
+    if (tx.category) set.add(tx.category);
+  });
+  return Array.from(set).sort();
 }
 
 /**
@@ -172,3 +474,4 @@ export function formatCurrency(amount) {
     maximumFractionDigits: 2
   }).format(num);
 }
+

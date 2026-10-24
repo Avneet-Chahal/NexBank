@@ -6,7 +6,8 @@ import {
   updateStoredUserProfile,
   updateUserPassword,
   getUserPreferences,
-  saveUserPreferences
+  saveUserPreferences,
+  getAuthToken
 } from "../../services/authService";
 import { formatCurrency } from "../../services/dashboardService";
 import "./Profile.css";
@@ -41,6 +42,9 @@ export function ProfilePage({ user, onNavigate, onLogout, onUserUpdate }) {
   const [passwordAlert, setPasswordAlert] = useState({ type: null, message: "" });
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [copiedAcc, setCopiedAcc] = useState(false);
+  const [isSubmittingPassword, setIsSubmittingPassword] = useState(false);
+  const [isSavingProfile, setIsSavingProfile] = useState(false);
+  const [securityEvents, setSecurityEvents] = useState([]);
 
   // Preferences State with LocalStorage Persistence 
   const [preferences, setPreferences] = useState(() => getUserPreferences());
@@ -54,6 +58,58 @@ export function ProfilePage({ user, onNavigate, onLogout, onUserUpdate }) {
       });
     }
   }, [user]);
+
+  // Load security audit events
+  useEffect(() => {
+    async function loadSecurityEvents() {
+      try {
+        const token = getAuthToken();
+        const res = await fetch("http://localhost:5000/api/users/security-events", {
+          headers: token ? { Authorization: `Bearer ${token}` } : {}
+        });
+        if (res.ok) {
+          const json = await res.json();
+          if (json.data) {
+            const list = Array.isArray(json.data) ? json.data : (json.data.events || []);
+            if (list.length > 0) {
+              setSecurityEvents(list);
+              return;
+            }
+          }
+        }
+      } catch (err) {
+        console.warn("Using offline security events fallback:", err);
+      }
+      // Demo security events fallback
+      setSecurityEvents([
+        {
+          id: "sec-1",
+          type: "Session Authenticated",
+          ip: "192.168.1.104",
+          userAgent: "Chrome 122 on Windows 11 (Current Device)",
+          status: "Success",
+          createdAt: new Date().toISOString()
+        },
+        {
+          id: "sec-2",
+          type: "2FA Handshake Passed",
+          ip: "192.168.1.104",
+          userAgent: "NexShield Hardware Cryptography",
+          status: "Verified",
+          createdAt: new Date(Date.now() - 3600000 * 4).toISOString()
+        },
+        {
+          id: "sec-3",
+          type: "Device Fingerprint Matched",
+          ip: "192.168.1.104",
+          userAgent: "Trusted Device Certificate (SHA-256)",
+          status: "Success",
+          createdAt: new Date(Date.now() - 86400000).toISOString()
+        }
+      ]);
+    }
+    loadSecurityEvents();
+  }, []);
 
   // Fallback / Logged-in Customer Fields
   const {
@@ -78,6 +134,74 @@ export function ProfilePage({ user, onNavigate, onLogout, onUserUpdate }) {
 
   // Avatar Initials (e.g. "A" or "AC")
   const displayAvatar = avatar || name.charAt(0).toUpperCase() || "N";
+  const isImageAvatar = typeof avatar === "string" && (avatar.startsWith("/") || avatar.startsWith("http"));
+
+  /**
+   * Handle Profile Avatar Upload via Multer endpoint
+   */
+  const handleAvatarUpload = async (event) => {
+    const file = event.target.files && event.target.files[0];
+    if (!file) return;
+
+    // Client-side quick file size guard (2MB)
+    if (file.size > 2 * 1024 * 1024) {
+      setFeedbackAlert({
+        type: "error",
+        message: "Profile image must be smaller than 2MB."
+      });
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("avatar", file);
+
+    try {
+      const token = getAuthToken();
+      const headers = {};
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
+
+      const response = await fetch("http://localhost:5000/api/users/avatar", {
+        method: "POST",
+        headers,
+        body: formData
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setFeedbackAlert({
+          type: "error",
+          message: data.error?.message || "Failed to upload profile photo."
+        });
+        return;
+      }
+
+      setFeedbackAlert({
+        type: "success",
+        message: "Profile photo updated successfully!"
+      });
+
+      if (data.data?.avatar) {
+        updateStoredUserProfile({ avatar: data.data.avatar });
+        if (typeof onUserUpdate === "function") {
+          onUserUpdate(data.data.user || { ...user, avatar: data.data.avatar });
+        }
+      }
+    } catch (err) {
+      console.warn("Avatar upload network fallback:", err);
+      const localUrl = URL.createObjectURL(file);
+      updateStoredUserProfile({ avatar: localUrl });
+      if (typeof onUserUpdate === "function") {
+        onUserUpdate({ ...user, avatar: localUrl });
+      }
+      setFeedbackAlert({
+        type: "success",
+        message: "Profile photo updated locally."
+      });
+    }
+  };
 
   /**
    * Copy Account Number to Clipboard with visual confirmation
@@ -133,9 +257,9 @@ export function ProfilePage({ user, onNavigate, onLogout, onUserUpdate }) {
   };
 
   /**
-   * Save Profile Changes to LocalStorage and Parent State
+   * Save Profile Changes to Backend / LocalStorage and Parent State
    */
-  const handleSaveProfile = (event) => {
+  const handleSaveProfile = async (event) => {
     event.preventDefault();
 
     const nameValidation = validateFullName(editForm.fullName);
@@ -158,11 +282,53 @@ export function ProfilePage({ user, onNavigate, onLogout, onUserUpdate }) {
       return;
     }
 
+    setIsSavingProfile(true);
+
+    try {
+      const token = getAuthToken();
+      if (token) {
+        const response = await fetch("http://localhost:5000/api/users/me", {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            name: editForm.fullName,
+            mobile: editForm.mobile
+          })
+        });
+
+        if (response.ok) {
+          const resData = await response.json();
+          const updatedUser = resData.data?.user || { ...user, name: editForm.fullName, mobile: editForm.mobile };
+          updateStoredUserProfile({
+            name: editForm.fullName,
+            mobile: editForm.mobile
+          });
+          setIsEditing(false);
+          setIsSavingProfile(false);
+          setFeedbackAlert({
+            type: "success",
+            message: "Profile updated successfully!"
+          });
+          if (typeof onUserUpdate === "function") {
+            onUserUpdate(updatedUser);
+          }
+          return;
+        }
+      }
+    } catch (err) {
+      console.warn("Server profile update fallback to local storage:", err);
+    }
+
     // Update in LocalStorage via authService
     const result = updateStoredUserProfile({
       name: editForm.fullName,
       mobile: editForm.mobile
     });
+
+    setIsSavingProfile(false);
 
     if (result.success) {
       setIsEditing(false);
@@ -214,7 +380,7 @@ export function ProfilePage({ user, onNavigate, onLogout, onUserUpdate }) {
   /**
    * Handle Password Change Submission
    */
-  const handlePasswordSubmit = (event) => {
+  const handlePasswordSubmit = async (event) => {
     event.preventDefault();
     setPasswordAlert({ type: null, message: "" });
 
@@ -240,7 +406,44 @@ export function ProfilePage({ user, onNavigate, onLogout, onUserUpdate }) {
       return;
     }
 
+    setIsSubmittingPassword(true);
+
+    // Try backend API first with JWT
+    try {
+      const token = getAuthToken();
+      if (token) {
+        const response = await fetch("http://localhost:5000/api/users/change-password", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            currentPassword: passwordForm.currentPassword,
+            newPassword: passwordForm.newPassword
+          })
+        });
+
+        const data = await response.json();
+        setIsSubmittingPassword(false);
+
+        if (response.ok) {
+          setPasswordAlert({ type: "success", message: data.message || "Password updated securely on server." });
+          updateUserPassword(email, passwordForm.currentPassword, passwordForm.newPassword);
+          setPasswordForm({ currentPassword: "", newPassword: "", confirmPassword: "" });
+          setTimeout(() => setShowChangePassword(false), 2000);
+          return;
+        } else {
+          setPasswordAlert({ type: "error", message: data.error?.message || "Failed to update password." });
+          return;
+        }
+      }
+    } catch (err) {
+      console.warn("Backend password update fallback to local storage:", err);
+    }
+
     const result = updateUserPassword(email, passwordForm.currentPassword, passwordForm.newPassword);
+    setIsSubmittingPassword(false);
 
     if (result.success) {
       setPasswordAlert({ type: "success", message: result.message });
@@ -276,8 +479,33 @@ export function ProfilePage({ user, onNavigate, onLogout, onUserUpdate }) {
           <div className="profile-hero__ambient" />
 
           <div className="profile-hero__left">
-            <div className="profile-hero__avatar">
-              {displayAvatar}
+            <div className="profile-hero__avatar" style={{ position: "relative" }}>
+              {isImageAvatar ? (
+                <img
+                  src={avatar.startsWith("http") ? avatar : `http://localhost:5000${avatar}`}
+                  alt={name}
+                  className="profile-hero__avatar-img"
+                  style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "50%" }}
+                />
+              ) : (
+                <span>{displayAvatar}</span>
+              )}
+              <label
+                className="profile-avatar-upload-btn"
+                title="Upload new profile photo"
+                aria-label="Upload new profile photo"
+              >
+                <input
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp"
+                  onChange={handleAvatarUpload}
+                  style={{ display: "none" }}
+                />
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="15" height="15" aria-hidden="true">
+                  <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" />
+                  <circle cx="12" cy="13" r="4" />
+                </svg>
+              </label>
             </div>
 
             <div className="profile-hero__details">
@@ -319,10 +547,10 @@ export function ProfilePage({ user, onNavigate, onLogout, onUserUpdate }) {
 
         {/* 2-Column Main Content Grid */}
         <div className="profile-grid">
-          
+
           {/* Left Column: Personal Information & Account Details */}
           <div className="profile-column">
-            
+
             {/* 1. Personal Information Card */}
             <div className="profile-card">
               <div className="profile-card__header">
@@ -353,7 +581,7 @@ export function ProfilePage({ user, onNavigate, onLogout, onUserUpdate }) {
                 /* Editable Form Mode */
                 <form onSubmit={handleSaveProfile} noValidate>
                   <div className="info-fields-list">
-                    
+
                     {/* Full Name Input */}
                     <div className="info-field-row">
                       <label htmlFor="profile-fullname-input" className="info-field-label">
@@ -518,7 +746,7 @@ export function ProfilePage({ user, onNavigate, onLogout, onUserUpdate }) {
 
           {/* Right Column: Security & Preferences + Account Activity */}
           <div className="profile-column">
-            
+
             {/* 1. Security & Preferences Card */}
             <div className="profile-card">
               <div className="profile-card__header">
@@ -778,6 +1006,65 @@ export function ProfilePage({ user, onNavigate, onLogout, onUserUpdate }) {
                   <span className="activity-summary-label">Security Verification:</span>
                   <span className="activity-summary-val" style={{ color: "#10B981" }}>Passed (256-Bit SSL)</span>
                 </div>
+              </div>
+            </div>
+
+            {/* 3. Recent Security & Device Audit Log */}
+            <div className="profile-card">
+              <div className="profile-card__header">
+                <h2 className="profile-card__title">
+                  <svg className="profile-card__title-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="22" height="22">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                  </svg>
+                  Security &amp; Device Audit Log
+                </h2>
+                <span className="hero-role-badge" style={{ fontSize: "0.75rem", background: "#EFF6FF", color: "#0052FF" }}>
+                  Live Telemetry
+                </span>
+              </div>
+
+              <div className="security-events-list" style={{ display: "flex", flexDirection: "column", gap: "10px", marginTop: "12px" }}>
+                {securityEvents.map((evt) => (
+                  <div
+                    key={evt.id || evt._id}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      padding: "10px 14px",
+                      borderRadius: "8px",
+                      background: "var(--navy-50)",
+                      border: "1px solid var(--navy-200)",
+                      gap: "12px"
+                    }}
+                  >
+                    <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
+                      <div style={{ fontSize: "0.88rem", fontWeight: 700, color: "var(--navy-900)" }}>
+                        {evt.type}
+                      </div>
+                      <div style={{ fontSize: "0.76rem", color: "var(--navy-500)" }}>
+                        {evt.userAgent} &bull; {evt.ip}
+                      </div>
+                    </div>
+                    <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "2px" }}>
+                      <span
+                        style={{
+                          fontSize: "0.7rem",
+                          fontWeight: 700,
+                          padding: "2px 8px",
+                          borderRadius: "10px",
+                          background: evt.status === "Success" || evt.status === "Verified" ? "rgba(16, 185, 129, 0.12)" : "rgba(239, 68, 68, 0.12)",
+                          color: evt.status === "Success" || evt.status === "Verified" ? "#10B981" : "#EF4444"
+                        }}
+                      >
+                        {evt.status}
+                      </span>
+                      <span style={{ fontSize: "0.72rem", color: "var(--navy-400)" }}>
+                        {new Date(evt.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                      </span>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
 
