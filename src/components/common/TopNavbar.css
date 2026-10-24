@@ -19,23 +19,24 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 20px;
+  gap: 16px;
 }
 
 .nex-navbar__brand {
   cursor: pointer;
   display: flex;
   align-items: center;
+  flex-shrink: 0;
 }
 
-/* Center Nav Links */
+/* Center Nav Links (Desktop) */
 .nex-navbar__nav {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 4px;
 }
 
-@media (max-width: 640px) {
+@media (max-width: 992px) {
   .nex-navbar__nav {
     display: none;
   }
@@ -44,14 +45,15 @@
 .nex-nav-link {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
+  gap: 6px;
+  padding: 7px 12px;
   border-radius: var(--radius-md);
-  font-size: 0.92rem;
+  font-size: 0.88rem;
   font-weight: 600;
   color: var(--navy-600);
   background: transparent;
   transition: all var(--transition-fast);
+  white-space: nowrap;
 }
 
 .nex-nav-link:hover {
@@ -69,7 +71,8 @@
 .nex-navbar__actions {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
+  flex-shrink: 0;
 }
 
 .nex-icon-btn {
@@ -83,6 +86,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
   transition: all var(--transition-fast);
 }
 
@@ -91,15 +95,23 @@
   color: var(--navy-900);
 }
 
-.nex-notification-dot {
+.nex-notification-badge {
   position: absolute;
-  top: 9px;
-  right: 10px;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
+  top: -3px;
+  right: -3px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border-radius: 9px;
   background-color: #EF4444;
+  color: #FFFFFF;
+  font-size: 0.68rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border: 2px solid var(--white);
+  box-shadow: 0 2px 5px rgba(239, 68, 68, 0.4);
 }
 
 /* User Pill */
@@ -107,7 +119,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 4px 10px 4px 4px;
+  padding: 4px 12px 4px 4px;
   border-radius: var(--radius-full);
   background: var(--navy-50);
   border: 1px solid var(--navy-200);
@@ -118,6 +130,11 @@
 .nex-user-pill:hover {
   background: var(--navy-100);
   border-color: var(--navy-300);
+}
+
+.nex-user-pill--active {
+  background: var(--primary-50);
+  border-color: var(--primary-300);
 }
 
 .nex-user-avatar {
@@ -140,7 +157,7 @@
   line-height: 1.2;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1100px) {
   .nex-user-info {
     display: none;
   }
@@ -169,6 +186,7 @@
   color: var(--error-600);
   font-size: 0.86rem;
   font-weight: 600;
+  cursor: pointer;
   transition: all var(--transition-fast);
 }
 
@@ -189,4 +207,85 @@
     height: 38px;
     justify-content: center;
   }
+}
+
+/* Mobile Hamburger Button */
+.nex-hamburger-btn {
+  display: none;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  background: var(--navy-50);
+  border: 1px solid var(--navy-200);
+  color: var(--navy-700);
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.nex-hamburger-btn:hover {
+  background: var(--navy-100);
+  color: var(--navy-900);
+}
+
+@media (max-width: 992px) {
+  .nex-hamburger-btn {
+    display: flex;
+  }
+}
+
+/* Mobile Dropdown Menu */
+.nex-mobile-menu {
+  display: block;
+  background-color: var(--white);
+  border-bottom: 1px solid var(--navy-200);
+  padding: 12px 24px 18px 24px;
+  box-shadow: var(--shadow-md);
+  animation: slideDownMobile 0.2s ease-out;
+}
+
+@keyframes slideDownMobile {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.nex-mobile-menu__links {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 8px;
+}
+
+.nex-mobile-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--navy-700);
+  background: var(--navy-50);
+  border: 1px solid var(--navy-100);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.nex-mobile-link:hover {
+  background: var(--primary-50);
+  color: var(--primary-600);
+  border-color: var(--primary-200);
+}
+
+.nex-mobile-link--active {
+  background: var(--primary-50);
+  color: var(--primary-600);
+  border-color: var(--primary-300);
+  font-weight: 700;
 }
