@@ -4,8 +4,23 @@ import SignInPage from "./pages/SignIn/SignInPage";
 import RegisterPage from "./pages/Register/RegisterPage";
 import DashboardPage from "./pages/Dashboard/DashboardPage";
 import ProfilePage from "./pages/Profile/ProfilePage";
+import BudgetsPage from "./pages/Budgets/BudgetsPage";
+import SavingsGoalsPage from "./pages/Savings/SavingsGoalsPage";
+import CardsPage from "./pages/Cards/CardsPage";
+import StatementsPage from "./pages/Statements/StatementsPage";
+import SupportTicketsPage from "./pages/Support/SupportTicketsPage";
 import { getCurrentUser, logoutUser } from "./services/authService";
 import "./App.css";
+
+const PROTECTED_PAGES = [
+  "dashboard",
+  "profile",
+  "budgets",
+  "savings",
+  "cards",
+  "statements",
+  "support-tickets"
+];
 
 /**
  * NexBank – Root Application Component
@@ -18,16 +33,20 @@ import "./App.css";
  *   4. About Us (/about)
  *   5. Support (/support)
  * 
- * - Authentication Pages (NO PublicNavbar, Back to Home link):
+ * - Authentication Pages:
  *   - Sign In (/signin)
  *   - Register (/register)
  * 
- * - Authenticated Application (Separate Authenticated TopNavbar):
+ * - Authenticated Application:
  *   - Dashboard (/dashboard)
- *   - Profile (/profile)
+ *   - Budgets (/budgets)
+ *   - Savings Goals (/savings)
+ *   - Cards (/cards)
+ *   - Statements (/statements)
+ *   - Support Tickets (/support-tickets)
+ *   - Profile & Security (/profile)
  */
 export function App() {
-  
   const [currentUser, setCurrentUser] = useState(() => getCurrentUser());
   const [currentPage, setCurrentPage] = useState(() => {
     const activeUser = getCurrentUser();
@@ -41,7 +60,7 @@ export function App() {
       setCurrentUser(user);
     } else {
       setCurrentUser(null);
-      if (currentPage === "dashboard" || currentPage === "profile") {
+      if (PROTECTED_PAGES.includes(currentPage)) {
         setCurrentPage("home");
       }
     }
@@ -49,19 +68,20 @@ export function App() {
 
   /**
    * Handle Navigation between pages with authentication guards
-   * @param {'home' | 'landing' | 'features' | 'security' | 'about' | 'support' | 'signin' | 'register' | 'dashboard' | 'profile'} page
+   * @param {string} page
    */
   const handleNavigate = (page) => {
     // Alias 'landing' to 'home'
     const targetPage = page === "landing" ? "home" : page;
 
-    // Authentication Guard: Disallow direct access to Dashboard or Profile if unauthenticated
-    if ((targetPage === "dashboard" || targetPage === "profile") && !currentUser) {
+    // Authentication Guard: Disallow direct access to protected pages if unauthenticated
+    if (PROTECTED_PAGES.includes(targetPage) && !currentUser) {
       setCurrentPage("signin");
       return;
     }
 
     setCurrentPage(targetPage);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   /**
@@ -110,7 +130,7 @@ export function App() {
 
       {/* 
         ========================================================================
-        2. AUTHENTICATION PAGES (❌ NO PublicNavbar here, only auth UI + 'Back to Home')
+        2. AUTHENTICATION PAGES 
         ========================================================================
       */}
       {/* Page: Sign In */}
@@ -130,7 +150,7 @@ export function App() {
 
       {/* 
         ========================================================================
-        3. AUTHENTICATED APPLICATION (Uses existing Authenticated TopNavbar)
+        3. AUTHENTICATED APPLICATION
         ========================================================================
       */}
       {/* Page: Dashboard */}
@@ -142,7 +162,52 @@ export function App() {
         />
       )}
 
-      {/* Page: Profile */}
+      {/* Page: Budgets */}
+      {currentPage === "budgets" && currentUser && (
+        <BudgetsPage
+          user={currentUser}
+          onNavigate={handleNavigate}
+          onLogout={handleLogout}
+        />
+      )}
+
+      {/* Page: Savings Goals */}
+      {currentPage === "savings" && currentUser && (
+        <SavingsGoalsPage
+          user={currentUser}
+          onNavigate={handleNavigate}
+          onLogout={handleLogout}
+        />
+      )}
+
+      {/* Page: Cards Management */}
+      {currentPage === "cards" && currentUser && (
+        <CardsPage
+          user={currentUser}
+          onNavigate={handleNavigate}
+          onLogout={handleLogout}
+        />
+      )}
+
+      {/* Page: Statements & Receipts */}
+      {currentPage === "statements" && currentUser && (
+        <StatementsPage
+          user={currentUser}
+          onNavigate={handleNavigate}
+          onLogout={handleLogout}
+        />
+      )}
+
+      {/* Page: Support Tickets */}
+      {currentPage === "support-tickets" && currentUser && (
+        <SupportTicketsPage
+          user={currentUser}
+          onNavigate={handleNavigate}
+          onLogout={handleLogout}
+        />
+      )}
+
+      {/* Page: Profile & Security */}
       {currentPage === "profile" && currentUser && (
         <ProfilePage
           user={currentUser}

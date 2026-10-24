@@ -1,9 +1,24 @@
-/**
- * NexBank – Authentication & Registration Service (Frontend Simulated Auth)
- */
-
 import { INITIAL_DEMO_USERS, STORAGE_KEYS } from "../data/mockUsers.js";
 import { getStorageItem, setStorageItem, removeStorageItem } from "../utils/storage.js";
+
+// In-memory authentication token store (held in runtime memory only, NEVER in localStorage)
+let inMemoryAuthToken = null;
+
+/**
+ * Retrieves the current in-memory JWT authentication token
+ * @returns {string|null}
+ */
+export function getAuthToken() {
+  return inMemoryAuthToken;
+}
+
+/**
+ * Sets the current in-memory JWT authentication token
+ * @param {string|null} token
+ */
+export function setAuthToken(token) {
+  inMemoryAuthToken = token || null;
+}
 
 /**
  * Initializes and retrieves all stored users from localStorage.
@@ -75,10 +90,6 @@ export function generateAccountNumber() {
  * @returns {Promise<{ success: boolean, user: object|null, message: string }>}
  */
 export async function registerUser(formData) {
-  // Simulate professional network latency (400ms)
-  await new Promise((resolve) => setTimeout(resolve, 400));
-
-
   const {
     fullName = "",
     email = "",
@@ -89,6 +100,46 @@ export async function registerUser(formData) {
   } = formData || {};
 
   const cleanEmail = email.trim().toLowerCase();
+
+  // 1. Attempt secure registration via Express backend API
+  try {
+    const response = await fetch("http://localhost:5000/api/auth/register", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        fullName,
+        email: cleanEmail,
+        mobile,
+        accountType,
+        password,
+        dateOfBirth
+      })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      return {
+        success: false,
+        user: null,
+        message: data.error?.message || "Registration failed. Please check your inputs."
+      };
+    }
+
+    // Retain token in runtime memory only (NEVER stored in localStorage)
+    setAuthToken(data.token);
+
+    return {
+      success: true,
+      user: data.user,
+      message: data.message || "Your NexBank account has been created successfully! Please sign in to continue."
+    };
+  } catch (error) {
+    // 2. Offline fallback if backend server is not running
+    console.warn("Backend API unreachable, using local registration fallback:", error.message);
+  }
 
   // Check for duplicate email 
   if (checkEmailExists(cleanEmail)) {
@@ -108,13 +159,12 @@ export async function registerUser(formData) {
     .toUpperCase()
     .slice(0, 2) || "NX";
 
-  // Create new customer account object
+  // Create new customer account object (fallback)
   const newUser = {
     id: `NX-${Date.now().toString().slice(-4)}`,
     name: fullName.trim(),
     email: cleanEmail,
     mobile: mobile.trim(),
-    password: password, // For simulated frontend CA1 evaluation
     accountType: accountType,
     accountNumber: generateAccountNumber(),
     accountStatus: "Active",
@@ -125,11 +175,8 @@ export async function registerUser(formData) {
     registrationDate: new Date().toISOString()
   };
 
-  // Retrieve existing users & append new user using ES6 Spread Operator
   const currentUsers = getStoredUsers();
   const updatedUsers = [...currentUsers, newUser];
-
-  // Persist into LocalStorage
   saveUsers(updatedUsers);
 
   return {
@@ -171,10 +218,55 @@ export function findUserByCredentials(email, password) {
  * @returns {Promise<{ success: boolean, user: object|null, message: string }>}
  */
 export async function loginUser(email, password, rememberMe = false) {
-  // Simulate professional network latency (400ms) to demonstrate UI loading states
-  await new Promise((resolve) => setTimeout(resolve, 450));
+  // 1. Attempt secure authentication via Express backend API
+  try {
+    const response = await fetch("http://localhost:5000/api/auth/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ email, password })
+    });
 
-  // Find user by credentials
+    const data = await response.json();
+
+    if (!response.ok) {
+      return {
+        success: false,
+        user: null,
+        message: data.error?.message || "Invalid email or password. Please verify your credentials."
+      };
+    }
+
+    // Securely retain JWT in runtime memory only (NEVER in localStorage)
+    setAuthToken(data.token);
+
+    const sessionUser = data.user;
+
+    // Persist only non-sensitive session profile in localStorage (NO token, NO password)
+    setStorageItem(STORAGE_KEYS.SESSION, {
+      user: sessionUser,
+      expiresAt: Date.now() + 24 * 60 * 60 * 1000
+    });
+    setStorageItem("currentUser", sessionUser);
+
+    if (rememberMe) {
+      setStorageItem(STORAGE_KEYS.REMEMBERED_EMAIL, email.trim());
+    } else {
+      removeStorageItem(STORAGE_KEYS.REMEMBERED_EMAIL);
+    }
+
+    return {
+      success: true,
+      user: sessionUser,
+      message: data.message || `Welcome back, ${sessionUser.name}! Sign in successful.`
+    };
+  } catch (error) {
+    // 2. Offline fallback if backend server is not running
+    console.warn("Backend API unreachable, using local authentication fallback:", error.message);
+  }
+
+  // Find user by credentials (local fallback)
   const matchedUser = findUserByCredentials(email, password);
 
   if (!matchedUser) {
@@ -207,11 +299,10 @@ export async function loginUser(email, password, rememberMe = false) {
     lastLoginAt: new Date().toISOString()
   };
 
-  // Persist session and currentUser to localStorage
+  // Persist session and currentUser to localStorage without tokens or passwords
   setStorageItem(STORAGE_KEYS.SESSION, {
     user: sessionUser,
-    token: `nexbank_simulated_token_${Date.now()}`,
-    expiresAt: Date.now() + 24 * 60 * 60 * 1000 // 24 hours timestamp 
+    expiresAt: Date.now() + 24 * 60 * 60 * 1000
   });
   setStorageItem("currentUser", sessionUser);
 
@@ -358,7 +449,6 @@ export function updateUserPassword(email, currentPassword, newPassword) {
 
 /**
  * Retrieves customer preferences from localStorage with fallback defaults
- * 
  * @returns {{ emailNotifications: boolean, transactionAlerts: boolean, marketingCommunications: boolean }}
  */
 export function getUserPreferences() {
@@ -389,6 +479,7 @@ export function saveUserPreferences(preferences) {
  * Logs out the current user by destroying the stored session & currentUser
  */
 export function logoutUser() {
+  setAuthToken(null);
   removeStorageItem("currentUser");
   removeStorageItem(STORAGE_KEYS.SESSION);
 }
