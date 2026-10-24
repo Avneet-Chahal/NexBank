@@ -94,8 +94,7 @@ export function NotificationDrawer({ isOpen, onClose }) {
 
           <button
             type="button"
-            className="notif-mark-read-btn"
-            style={{ color: "#64748B" }}
+            className="notif-prefs-toggle-btn"
             onClick={() => setShowPreferences(!showPreferences)}
           >
             {showPreferences ? "Close Settings" : "Preferences"}
@@ -105,30 +104,39 @@ export function NotificationDrawer({ isOpen, onClose }) {
         {/* Optional Preferences Panel */}
         {showPreferences && (
           <div className="notif-preferences-panel">
-            <div className="notif-prefs-title">Notification Settings</div>
+            <div className="notif-prefs-title">Notification Channels &amp; Alerts</div>
             <div className="notif-toggle-row">
-              <span>Budget Threshold Warnings (80% / 100%)</span>
-              <input
-                type="checkbox"
-                checked={preferences.budgetAlerts}
-                onChange={() => handleTogglePref("budgetAlerts")}
-              />
+              <span className="notif-toggle-label">Budget Threshold Warnings (80% / 100%)</span>
+              <label className="notif-switch" aria-label="Toggle budget threshold warnings">
+                <input
+                  type="checkbox"
+                  checked={preferences.budgetAlerts}
+                  onChange={() => handleTogglePref("budgetAlerts")}
+                />
+                <span className="notif-slider" />
+              </label>
             </div>
             <div className="notif-toggle-row">
-              <span>Upcoming Bill Reminders</span>
-              <input
-                type="checkbox"
-                checked={preferences.billReminders}
-                onChange={() => handleTogglePref("billReminders")}
-              />
+              <span className="notif-toggle-label">Upcoming Bill Reminders</span>
+              <label className="notif-switch" aria-label="Toggle upcoming bill reminders">
+                <input
+                  type="checkbox"
+                  checked={preferences.billReminders}
+                  onChange={() => handleTogglePref("billReminders")}
+                />
+                <span className="notif-slider" />
+              </label>
             </div>
             <div className="notif-toggle-row">
-              <span>Security &amp; Device Notices</span>
-              <input
-                type="checkbox"
-                checked={preferences.securityNotices}
-                onChange={() => handleTogglePref("securityNotices")}
-              />
+              <span className="notif-toggle-label">Security &amp; Device Notices</span>
+              <label className="notif-switch" aria-label="Toggle security and device notices">
+                <input
+                  type="checkbox"
+                  checked={preferences.securityNotices}
+                  onChange={() => handleTogglePref("securityNotices")}
+                />
+                <span className="notif-slider" />
+              </label>
             </div>
           </div>
         )}

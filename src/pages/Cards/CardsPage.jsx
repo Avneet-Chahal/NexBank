@@ -92,27 +92,14 @@ export function CardsPage({ user, onNavigate, onLogout }) {
             </p>
           </div>
 
-          <div style={{ display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap" }}>
+          <div className="cards-header__actions">
             <DataSourceBadge source={dataSource} />
           </div>
         </div>
 
         {/* Academic Prototype Notice */}
-        <div
-          style={{
-            backgroundColor: "#EFF6FF",
-            border: "1px solid #BFDBFE",
-            borderRadius: "12px",
-            padding: "12px 18px",
-            marginBottom: "28px",
-            fontSize: "0.82rem",
-            color: "#1E40AF",
-            display: "flex",
-            alignItems: "center",
-            gap: "10px"
-          }}
-        >
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="18" height="18">
+        <div className="cards-academic-notice">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="18" height="18" className="academic-notice-icon">
             <rect x="2" y="5" width="20" height="14" rx="2" />
             <line x1="2" y1="10" x2="22" y2="10" />
           </svg>
@@ -148,7 +135,14 @@ export function CardsPage({ user, onNavigate, onLogout }) {
                   {/* Top row */}
                   <div className="card-top-row">
                     <div className="card-emv-chip" />
-                    <span className="card-brand-badge">NexBank</span>
+                    <div className="card-top-right">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="20" height="20" className="card-contactless-icon" aria-label="Contactless payment ready">
+                        <path d="M8.5 16.5a5 5 0 0 1 0-7" strokeLinecap="round" />
+                        <path d="M12 19a8.5 8.5 0 0 0 0-14" strokeLinecap="round" />
+                        <path d="M15.5 21.5a12 12 0 0 0 0-19" strokeLinecap="round" />
+                      </svg>
+                      <span className="card-brand-badge">NexBank</span>
+                    </div>
                   </div>
 
                   {/* Number row */}
@@ -159,6 +153,7 @@ export function CardsPage({ user, onNavigate, onLogout }) {
                       className="card-eye-btn"
                       onClick={() => setShowDetails(!showDetails)}
                       title={showDetails ? "Hide card details" : "Reveal card details"}
+                      aria-label={showDetails ? "Hide card details" : "Reveal card details"}
                     >
                       {showDetails ? (
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="18" height="18">
@@ -181,7 +176,7 @@ export function CardsPage({ user, onNavigate, onLogout }) {
                       <span className="card-holder-name">{user?.name || card?.cardHolder || "Demo Customer"}</span>
                     </div>
 
-                    <div style={{ display: "flex", gap: "24px" }}>
+                    <div className="card-meta-group">
                       <div>
                         <span className="card-meta-label">Expires</span>
                         <span className="card-meta-val">{card?.expiryDate || "08/29"}</span>
@@ -196,29 +191,19 @@ export function CardsPage({ user, onNavigate, onLogout }) {
               </div>
 
               {/* Balance & Mask Toggle Strip */}
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  padding: "12px 18px",
-                  backgroundColor: "var(--white)",
-                  borderRadius: "var(--radius-lg)",
-                  border: "1px solid var(--navy-200)"
-                }}
-              >
+              <div className="card-balance-strip">
                 <div>
-                  <span style={{ fontSize: "0.78rem", color: "#64748B", display: "block" }}>
+                  <span className="card-balance-label">
                     Primary Account Balance
                   </span>
-                  <strong style={{ fontSize: "1.1rem", color: "var(--navy-900)" }}>
+                  <strong className="card-balance-value">
                     {showBalance ? formatCurrency(user?.balance || 84250.75) : "••••••••"}
                   </strong>
                 </div>
 
                 <button
                   type="button"
-                  className="budget-card-btn"
+                  className="card-toggle-balance-btn"
                   onClick={() => setShowBalance(!showBalance)}
                 >
                   {showBalance ? "Hide Balance" : "Show Balance"}
@@ -227,24 +212,33 @@ export function CardsPage({ user, onNavigate, onLogout }) {
 
               {/* Recent Card Transactions */}
               <div className="card-activity-card">
-                <h3 style={{ fontSize: "1.05rem", fontWeight: "700", color: "var(--navy-900)", marginBottom: "14px" }}>
-                  Recent Card POS Authorizations
-                </h3>
+                <div className="card-activity-header">
+                  <h3 className="card-activity-title">
+                    Recent Card POS Authorizations
+                  </h3>
+                  <span className="card-activity-badge">{recentActivities.length} recent</span>
+                </div>
                 {recentActivities.map((act) => (
                   <div key={act.id} className="activity-item-card">
-                    <div>
-                      <h4 style={{ fontSize: "0.88rem", fontWeight: "600", color: "var(--navy-900)" }}>
-                        {act.merchant}
-                      </h4>
-                      <span style={{ fontSize: "0.75rem", color: "#64748B" }}>
-                        {act.date} &bull; {act.channel}
-                      </span>
+                    <div className="activity-item-left">
+                      <div className="activity-item-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16">
+                          <rect x="2" y="5" width="20" height="14" rx="2" />
+                          <line x1="2" y1="10" x2="22" y2="10" />
+                        </svg>
+                      </div>
+                      <div>
+                        <h4 className="activity-merchant">{act.merchant}</h4>
+                        <span className="activity-meta">
+                          {act.date} &bull; {act.channel}
+                        </span>
+                      </div>
                     </div>
-                    <div style={{ textAlign: "right" }}>
-                      <span style={{ fontWeight: "700", color: "var(--navy-900)", fontSize: "0.9rem" }}>
+                    <div className="activity-item-right">
+                      <span className="activity-amount">
                         -{formatCurrency(act.amount)}
                       </span>
-                      <span style={{ display: "block", fontSize: "0.72rem", color: "#10B981", fontWeight: "600" }}>
+                      <span className="activity-status">
                         {act.status}
                       </span>
                     </div>
@@ -255,9 +249,9 @@ export function CardsPage({ user, onNavigate, onLogout }) {
 
             {/* Right: Security & Usage Controls */}
             <div className="card-controls-card">
-              <div>
+              <div className="control-card-header">
                 <h3 className="control-group-header">Instant Security Controls</h3>
-                <p style={{ fontSize: "0.82rem", color: "var(--navy-500)" }}>
+                <p className="control-group-desc">
                   Toggle card authorizations and adjust simulated spending parameters in real-time.
                 </p>
               </div>
@@ -268,7 +262,7 @@ export function CardsPage({ user, onNavigate, onLogout }) {
                   <h4>Lock / Freeze Virtual Card</h4>
                   <p>Instantly block all incoming and POS authorization attempts.</p>
                 </div>
-                <label className="switch">
+                <label className="switch" aria-label="Toggle lock or freeze virtual card">
                   <input
                     type="checkbox"
                     checked={card?.isFrozen || false}
@@ -283,12 +277,8 @@ export function CardsPage({ user, onNavigate, onLogout }) {
               <div className="limit-control-box">
                 <div className="limit-display-row">
                   <div>
-                    <h4 style={{ fontSize: "0.92rem", fontWeight: "700", color: "var(--navy-900)" }}>
-                      Monthly Spending Limit
-                    </h4>
-                    <span style={{ fontSize: "0.78rem", color: "var(--navy-500)" }}>
-                      Current active threshold
-                    </span>
+                    <h4 className="limit-title">Monthly Spending Limit</h4>
+                    <span className="limit-subtitle">Current active threshold</span>
                   </div>
                   <span className="limit-current-val">
                     {formatCurrency(card?.monthlyLimit || 50000)}
@@ -303,6 +293,7 @@ export function CardsPage({ user, onNavigate, onLogout }) {
                   className="limit-slider-range"
                   value={card?.monthlyLimit || 50000}
                   onChange={(e) => handleUpdateLimit(e.target.value)}
+                  aria-label="Adjust monthly spending limit"
                 />
 
                 <div className="limit-presets-row">
@@ -310,7 +301,7 @@ export function CardsPage({ user, onNavigate, onLogout }) {
                     <button
                       key={preset}
                       type="button"
-                      className="limit-preset-btn"
+                      className={`limit-preset-btn ${card?.monthlyLimit === preset ? "limit-preset-btn--active" : ""}`}
                       onClick={() => handleUpdateLimit(preset)}
                     >
                       {formatCurrency(preset)}
@@ -352,7 +343,7 @@ export function CardsPage({ user, onNavigate, onLogout }) {
               </div>
 
               {/* International Spending Toggle */}
-              <div className="control-toggle-row" style={{ borderBottom: "none" }}>
+              <div className="control-toggle-row control-toggle-row--last">
                 <div className="control-toggle-info">
                   <h4>International Currency Clearance</h4>
                   <p>Enable cross-border foreign currency merchant checkouts.</p>

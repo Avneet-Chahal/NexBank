@@ -114,9 +114,9 @@ export function SupportTicketsPage({ user, onNavigate, onLogout }) {
             </p>
           </div>
 
-          <div style={{ display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap" }}>
+          <div className="tickets-header__actions">
             <DataSourceBadge source={dataSource} />
-            <button type="button" className="create-budget-btn" onClick={handleOpenCreate}>
+            <button type="button" className="tickets-action-btn" onClick={handleOpenCreate}>
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" width="16" height="16">
                 <line x1="12" y1="5" x2="12" y2="19" />
                 <line x1="5" y1="12" x2="19" y2="12" />
@@ -128,12 +128,12 @@ export function SupportTicketsPage({ user, onNavigate, onLogout }) {
 
         {/* Academic Prototype Notice */}
         <div className="academic-support-notice">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="20" height="20">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="20" height="20" className="academic-support-notice__icon">
             <circle cx="12" cy="12" r="10" />
             <line x1="12" y1="8" x2="12" y2="12" />
             <line x1="12" y1="16" x2="12.01" y2="16" />
           </svg>
-          <div>
+          <div className="academic-support-notice__text">
             <strong>Educational Demonstration Notice:</strong> This ticketing portal demonstrates authenticated customer dispute workflows, schema persistence, and transaction cross-referencing. It is not staffed by live commercial banking agents.
           </div>
         </div>
@@ -164,6 +164,7 @@ export function SupportTicketsPage({ user, onNavigate, onLogout }) {
                 {tickets.map((t) => {
                   const ticketId = t.id || t.ticketId;
                   const statusClass = `ticket-card__status--${(t.status || "Open").replace(" ", "_")}`;
+                  const priorityClass = `ticket-card__priority--${(t.priority || "Normal").toLowerCase()}`;
 
                   return (
                     <div
@@ -173,7 +174,16 @@ export function SupportTicketsPage({ user, onNavigate, onLogout }) {
                     >
                       <div className="ticket-card__header">
                         <span className="ticket-card__ref">{ticketId}</span>
-                        <span className={`ticket-card__status ${statusClass}`}>{t.status || "Open"}</span>
+                        <div className="ticket-card__tags">
+                          {t.priority && (
+                            <span className={`ticket-card__priority ${priorityClass}`}>
+                              {t.priority}
+                            </span>
+                          )}
+                          <span className={`ticket-card__status ${statusClass}`}>
+                            {t.status || "Open"}
+                          </span>
+                        </div>
                       </div>
 
                       <h3 className="ticket-card__subject">{t.subject}</h3>
@@ -196,13 +206,15 @@ export function SupportTicketsPage({ user, onNavigate, onLogout }) {
                 })}
               </div>
             ) : (
-              <div className="chart-empty-state" style={{ backgroundColor: "var(--white)", borderRadius: "var(--radius-xl)", padding: "48px 24px" }}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="48" height="48">
-                  <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
-                </svg>
+              <div className="tickets-empty-card">
+                <div className="tickets-empty-icon-wrap">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="36" height="36">
+                    <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
+                  </svg>
+                </div>
                 <h3>No support tickets filed</h3>
-                <p>If you experience an issue or wish to dispute a transaction, submit a ticket for tracking.</p>
-                <button type="button" className="create-budget-btn" style={{ marginTop: "16px" }} onClick={handleOpenCreate}>
+                <p>If you experience an issue or wish to dispute a transaction, submit a ticket for real-time tracking.</p>
+                <button type="button" className="tickets-action-btn" onClick={handleOpenCreate}>
                   Submit a Support Ticket
                 </button>
               </div>
@@ -215,14 +227,17 @@ export function SupportTicketsPage({ user, onNavigate, onLogout }) {
           <div className="modal-overlay" onClick={() => setIsCreateModalOpen(false)}>
             <div className="modal-card" onClick={(e) => e.stopPropagation()}>
               <div className="modal-header">
-                <h3 className="modal-title">Submit Support Ticket</h3>
-                <button type="button" className="modal-close-btn" onClick={() => setIsCreateModalOpen(false)}>
+                <div>
+                  <span className="modal-badge">NEW INQUIRY</span>
+                  <h3 className="modal-title">Submit Support Ticket</h3>
+                </div>
+                <button type="button" className="modal-close-btn" onClick={() => setIsCreateModalOpen(false)} aria-label="Close modal">
                   &times;
                 </button>
               </div>
 
               {formError && (
-                <div style={{ color: "#EF4444", fontSize: "0.85rem", marginBottom: "12px", fontWeight: "500" }}>
+                <div className="form-error-alert">
                   {formError}
                 </div>
               )}
@@ -240,6 +255,19 @@ export function SupportTicketsPage({ user, onNavigate, onLogout }) {
                         {c}
                       </option>
                     ))}
+                  </select>
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Priority Level</label>
+                  <select
+                    className="form-select"
+                    value={form.priority}
+                    onChange={(e) => setForm({ ...form, priority: e.target.value })}
+                  >
+                    <option value="Normal">Normal Priority</option>
+                    <option value="Urgent">Urgent Priority</option>
+                    <option value="Critical">Critical Dispute</option>
                   </select>
                 </div>
 
@@ -274,9 +302,8 @@ export function SupportTicketsPage({ user, onNavigate, onLogout }) {
                 <div className="form-group">
                   <label className="form-label">Description &bull; Details</label>
                   <textarea
-                    className="form-input"
+                    className="form-input form-textarea"
                     rows="4"
-                    style={{ height: "auto", padding: "10px 12px" }}
                     placeholder="Provide relevant dates, merchant names, or issue details..."
                     value={form.description}
                     onChange={(e) => setForm({ ...form, description: e.target.value })}
@@ -304,40 +331,50 @@ export function SupportTicketsPage({ user, onNavigate, onLogout }) {
               <div className="modal-header">
                 <div>
                   <span className="ticket-card__ref">{selectedTicket.id || selectedTicket.ticketId}</span>
-                  <h3 className="modal-title" style={{ marginTop: "6px" }}>
+                  <h3 className="modal-title modal-title--with-margin">
                     {selectedTicket.subject}
                   </h3>
                 </div>
-                <button type="button" className="modal-close-btn" onClick={() => setSelectedTicket(null)}>
+                <button type="button" className="modal-close-btn" onClick={() => setSelectedTicket(null)} aria-label="Close modal">
                   &times;
                 </button>
               </div>
 
-              <div style={{ marginBottom: "16px", display: "flex", gap: "12px", alignItems: "center" }}>
+              <div className="ticket-modal-meta">
                 <span className={`ticket-card__status ticket-card__status--${(selectedTicket.status || "Open").replace(" ", "_")}`}>
                   {selectedTicket.status || "Open"}
                 </span>
-                <span style={{ fontSize: "0.82rem", color: "#64748B" }}>
-                  Category: {selectedTicket.category}
+                {selectedTicket.priority && (
+                  <span className={`ticket-card__priority ticket-card__priority--${selectedTicket.priority.toLowerCase()}`}>
+                    {selectedTicket.priority} Priority
+                  </span>
+                )}
+                <span className="ticket-modal-category">
+                  Category: <strong>{selectedTicket.category}</strong>
                 </span>
               </div>
 
               {selectedTicket.transactionReference && (
-                <div style={{ padding: "8px 12px", backgroundColor: "#EFF6FF", borderRadius: "6px", marginBottom: "16px", fontSize: "0.82rem", color: "#1E40AF" }}>
-                  Referenced Transaction: <strong>{selectedTicket.transactionReference}</strong>
+                <div className="ticket-modal-tx-box">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16">
+                    <rect x="2" y="5" width="20" height="14" rx="2" />
+                    <line x1="2" y1="10" x2="22" y2="10" />
+                  </svg>
+                  <span>Referenced Transaction: <strong>{selectedTicket.transactionReference}</strong></span>
                 </div>
               )}
 
-              <div style={{ fontSize: "0.9rem", color: "var(--navy-800)", lineHeight: "1.6", marginBottom: "24px" }}>
-                <p><strong>Description:</strong></p>
-                <p style={{ marginTop: "4px", color: "var(--navy-600)" }}>{selectedTicket.description}</p>
+              <div className="ticket-modal-desc-wrap">
+                <span className="ticket-modal-desc-label">Ticket Details &amp; Claim Narrative:</span>
+                <p className="ticket-modal-desc-text">{selectedTicket.description}</p>
               </div>
 
-              <div style={{ borderTop: "1px solid #E2E8F0", paddingTop: "14px", fontSize: "0.8rem", color: "#94A3B8" }}>
-                Submitted on: {new Date(selectedTicket.createdAt || Date.now()).toLocaleString()}
+              <div className="ticket-modal-date-footer">
+                <span>Submitted on: {new Date(selectedTicket.createdAt || Date.now()).toLocaleString()}</span>
+                <span>Audit Ref: SEC-{String(selectedTicket.id || "001").slice(-6).toUpperCase()}</span>
               </div>
 
-              <div className="modal-footer" style={{ marginTop: "20px" }}>
+              <div className="modal-footer">
                 <button type="button" className="btn-secondary" onClick={() => setSelectedTicket(null)}>
                   Close
                 </button>

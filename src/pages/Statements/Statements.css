@@ -1,10 +1,19 @@
 /**
  * NexBank – Statements & Digital Receipts Stylesheet
+ * 
+ * Aesthetics:
+ * - Enterprise financial statement documentation
+ * - Midnight navy & charcoal palette with vibrant audit status pills
+ * - High-contrast data tables with monospace reference IDs
+ * - Pixel-perfect printable document layout and digital receipt voucher
  */
 
 .statements-layout {
   min-height: 100vh;
   background-color: var(--navy-50);
+  background-image: 
+    radial-gradient(circle at 85% 15%, rgba(0, 82, 255, 0.035) 0%, transparent 45%),
+    radial-gradient(circle at 15% 85%, rgba(99, 102, 241, 0.035) 0%, transparent 45%);
   display: flex;
   flex-direction: column;
 }
@@ -14,29 +23,34 @@
   max-width: 1280px;
   width: 100%;
   margin: 0 auto;
-  padding: 32px 24px 60px 24px;
+  padding: 32px 24px 64px 24px;
 }
 
+/* ==========================================================================
+   Header & Actions Toolbar
+   ========================================================================== */
 .statements-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 28px;
+  margin-bottom: 24px;
   flex-wrap: wrap;
   gap: 16px;
 }
 
 .statements-header__title {
-  font-size: 1.85rem;
+  font-size: 1.95rem;
   font-weight: 800;
   color: var(--navy-900);
   letter-spacing: -0.03em;
+  line-height: 1.2;
 }
 
 .statements-header__subtitle {
   font-size: 0.95rem;
   color: var(--navy-500);
-  margin-top: 4px;
+  margin-top: 5px;
+  line-height: 1.5;
 }
 
 .statements-header__actions {
@@ -50,12 +64,13 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 16px;
+  padding: 9px 18px;
   border-radius: var(--radius-md);
-  font-size: 0.86rem;
+  font-size: 0.88rem;
   font-weight: 600;
   cursor: pointer;
   transition: all var(--transition-fast);
+  user-select: none;
 }
 
 .statement-action-btn--secondary {
@@ -67,25 +82,33 @@
 
 .statement-action-btn--secondary:hover {
   background-color: var(--navy-50);
-  border-color: var(--navy-300);
+  border-color: var(--primary-300);
+  color: var(--primary-600);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
 }
 
 .statement-action-btn--primary {
   background: var(--primary-gradient);
   color: var(--white);
-  box-shadow: 0 4px 12px rgba(0, 82, 255, 0.2);
+  border: 1px solid transparent;
+  box-shadow: 0 4px 14px rgba(0, 82, 255, 0.28);
 }
 
 .statement-action-btn--primary:hover {
   background: var(--primary-hover-gradient);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px rgba(0, 82, 255, 0.38);
 }
 
-/* Filter Card */
+/* ==========================================================================
+   Filter Toolbar Card
+   ========================================================================== */
 .statement-filter-card {
   background-color: var(--white);
   border: 1px solid var(--navy-200);
   border-radius: var(--radius-xl);
-  padding: 22px 24px;
+  padding: 20px 24px;
   margin-bottom: 28px;
   box-shadow: var(--shadow-sm);
 }
@@ -104,6 +127,32 @@
   flex-wrap: wrap;
 }
 
+.type-pill-btn {
+  padding: 7px 14px;
+  border-radius: var(--radius-full);
+  font-size: 0.82rem;
+  font-weight: 600;
+  background-color: var(--navy-50);
+  border: 1px solid var(--navy-200);
+  color: var(--navy-700);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.type-pill-btn:hover {
+  background-color: var(--primary-50);
+  border-color: var(--primary-200);
+  color: var(--primary-600);
+}
+
+.type-pill-btn--active {
+  background-color: var(--primary-50);
+  border-color: var(--primary-500);
+  color: var(--primary-600);
+  font-weight: 700;
+  box-shadow: 0 0 0 1px var(--primary-500);
+}
+
 .date-inputs-wrap {
   display: flex;
   align-items: center;
@@ -111,7 +160,50 @@
   flex-wrap: wrap;
 }
 
-/* Statement Document Card (Viewable & Printable) */
+.date-separator {
+  color: var(--navy-400);
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.filter-date-input {
+  padding: 8px 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--navy-200);
+  background-color: var(--white);
+  font-size: 0.84rem;
+  color: var(--navy-800);
+  font-family: inherit;
+  transition: all var(--transition-fast);
+}
+
+.filter-date-input:focus {
+  outline: none;
+  border-color: var(--primary-500);
+  box-shadow: 0 0 0 3px rgba(0, 82, 255, 0.12);
+}
+
+.transactions-sort-select {
+  padding: 8px 14px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--navy-200);
+  background-color: var(--white);
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: var(--navy-800);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.transactions-sort-select:focus {
+  outline: none;
+  border-color: var(--primary-500);
+  box-shadow: 0 0 0 3px rgba(0, 82, 255, 0.12);
+}
+
+/* ==========================================================================
+   Printable Official Statement Document Card
+   ========================================================================== */
 .statement-doc-card {
   background-color: var(--white);
   border: 1px solid var(--navy-200);
@@ -121,42 +213,76 @@
   margin-bottom: 32px;
 }
 
+@media (max-width: 768px) {
+  .statement-doc-card {
+    padding: 24px 20px;
+  }
+}
+
 .statement-doc-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
   padding-bottom: 24px;
-  border-bottom: 2px solid var(--navy-100);
+  border-bottom: 1px solid var(--navy-200);
   margin-bottom: 24px;
   flex-wrap: wrap;
   gap: 20px;
 }
 
 .statement-doc-title {
-  font-size: 1.5rem;
+  font-size: 1.6rem;
   font-weight: 800;
   color: var(--navy-900);
+  letter-spacing: -0.02em;
 }
 
 .statement-doc-meta {
-  font-size: 0.85rem;
+  font-size: 0.84rem;
   color: var(--navy-500);
   margin-top: 4px;
+  line-height: 1.45;
 }
 
+.statement-doc-customer {
+  text-align: right;
+}
+
+@media (max-width: 640px) {
+  .statement-doc-customer {
+    text-align: left;
+  }
+}
+
+.statement-customer-name {
+  font-size: 1.15rem;
+  color: var(--navy-900);
+  font-weight: 800;
+  display: block;
+}
+
+/* Financial Summary 4-Grid Bar */
 .statement-summary-bar {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 16px;
-  background-color: var(--navy-50);
-  padding: 18px 20px;
+  background: linear-gradient(135deg, var(--navy-50) 0%, #F1F5F9 100%);
+  padding: 20px 24px;
   border-radius: var(--radius-lg);
+  border: 1px solid var(--navy-200);
   margin-bottom: 28px;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 900px) {
   .statement-summary-bar {
     grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 520px) {
+  .statement-summary-bar {
+    grid-template-columns: 1fr;
+    gap: 14px;
   }
 }
 
@@ -165,20 +291,33 @@
   font-weight: 700;
   text-transform: uppercase;
   color: var(--navy-500);
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
   display: block;
-  margin-bottom: 4px;
+  margin-bottom: 5px;
 }
 
 .summary-bar-stat span {
-  font-size: 1.15rem;
+  font-size: 1.25rem;
   font-weight: 800;
   color: var(--navy-900);
+  letter-spacing: -0.02em;
 }
 
-/* Statement Table */
+.summary-bar-stat .text-success {
+  color: var(--success-600);
+}
+
+.summary-bar-stat .text-error {
+  color: var(--error-600);
+}
+
+/* ==========================================================================
+   Transaction Ledger Table
+   ========================================================================== */
 .statement-table-wrap {
   overflow-x: auto;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--navy-200);
 }
 
 .statement-table {
@@ -186,27 +325,108 @@
   border-collapse: collapse;
   font-size: 0.88rem;
   text-align: left;
+  white-space: nowrap;
 }
 
 .statement-table th {
-  padding: 12px 14px;
-  background-color: var(--navy-100);
-  color: var(--navy-800);
+  padding: 14px 16px;
+  background-color: var(--navy-50);
+  color: var(--navy-700);
   font-weight: 700;
-  font-size: 0.8rem;
+  font-size: 0.76rem;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.06em;
   border-bottom: 1px solid var(--navy-200);
 }
 
 .statement-table td {
-  padding: 14px;
+  padding: 14px 16px;
   border-bottom: 1px solid var(--navy-100);
   color: var(--navy-800);
+  vertical-align: middle;
 }
 
 .statement-table tr:hover td {
-  background-color: var(--navy-50);
+  background-color: #F8FAFC;
+}
+
+.statement-td-date {
+  font-size: 0.84rem;
+  color: var(--navy-600);
+}
+
+.statement-td-mono {
+  font-family: 'JetBrains Mono', 'Courier New', monospace;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--navy-800);
+  background: var(--navy-100);
+  padding: 3px 8px;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+.statement-td-desc {
+  font-weight: 700;
+  color: var(--navy-900);
+}
+
+.statement-td-category {
+  font-size: 0.84rem;
+  color: var(--navy-600);
+}
+
+/* Type Badges */
+.statement-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  font-size: 0.74rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.statement-badge--credit {
+  background-color: var(--success-50);
+  color: var(--success-600);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+}
+
+.statement-badge--debit {
+  background-color: var(--error-50);
+  color: var(--error-600);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+}
+
+.statement-td-amount {
+  font-weight: 800;
+  font-size: 0.92rem;
+}
+
+.statement-td-amount--income {
+  color: var(--success-600);
+}
+
+.statement-td-amount--expense {
+  color: var(--navy-900);
+}
+
+/* Status Pill */
+.statement-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--navy-700);
+}
+
+.statement-status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: var(--success-500);
 }
 
 .view-receipt-link {
@@ -216,19 +436,58 @@
   background: none;
   border: none;
   font-size: 0.82rem;
-  text-decoration: underline;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-fast);
 }
 
-/* Receipt Modal */
+.view-receipt-link:hover {
+  background-color: var(--primary-50);
+  color: var(--primary-700);
+  text-decoration: none;
+}
+
+/* Statement Verification Footer */
+.statement-doc-footer {
+  margin-top: 32px;
+  padding-top: 18px;
+  border-top: 1px dashed var(--navy-200);
+  font-size: 0.8rem;
+  color: var(--navy-500);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.statement-verification-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--primary-700);
+  font-weight: 600;
+}
+
+/* ==========================================================================
+   Digital Transaction Receipt Modal
+   ========================================================================== */
 .receipt-card {
   background-color: var(--white);
   border-radius: var(--radius-xl);
-  padding: 32px;
+  padding: 36px 32px 30px 32px;
   max-width: 460px;
   width: 100%;
-  box-shadow: var(--shadow-xl);
+  box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.25);
   position: relative;
+  border: 1px solid var(--navy-200);
   border-top: 6px solid var(--primary-500);
+  animation: modalScaleIn 200ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modalScaleIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
 }
 
 .receipt-header {
@@ -238,22 +497,54 @@
   margin-bottom: 20px;
 }
 
-.receipt-amount-box {
-  margin: 16px 0;
-  font-size: 2rem;
+.receipt-brand-tag {
+  font-size: 0.74rem;
   font-weight: 800;
+  color: var(--primary-600);
+  letter-spacing: 0.08em;
+  display: block;
+}
+
+.receipt-status-title {
+  font-size: 1.32rem;
+  font-weight: 800;
+  color: var(--navy-900);
+  margin-top: 5px;
+}
+
+.receipt-amount-box {
+  margin: 14px 0 10px 0;
+  font-size: 2.1rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.receipt-amount-box--income {
+  color: var(--success-600);
+}
+
+.receipt-amount-box--expense {
+  color: var(--navy-900);
+}
+
+.receipt-desc-sub {
+  font-size: 0.84rem;
+  color: var(--navy-500);
+  font-weight: 500;
+  display: block;
 }
 
 .receipt-rows {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  margin-bottom: 24px;
+  gap: 13px;
+  margin-bottom: 22px;
 }
 
 .receipt-row {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   font-size: 0.88rem;
 }
 
@@ -266,19 +557,84 @@
   color: var(--navy-900);
 }
 
-.receipt-security-token {
-  font-family: monospace;
-  font-size: 0.72rem;
-  color: var(--navy-400);
-  background-color: var(--navy-50);
-  padding: 8px 10px;
-  border-radius: 6px;
-  text-align: center;
-  word-break: break-all;
-  margin-bottom: 20px;
+.receipt-row-value--mono {
+  font-family: 'JetBrains Mono', 'Courier New', monospace;
+  font-weight: 700;
+  color: var(--navy-800);
 }
 
-/* Print CSS */
+.receipt-row-value--success {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--success-600);
+  font-weight: 700;
+}
+
+.receipt-status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: var(--success-500);
+}
+
+.receipt-security-token {
+  font-family: 'JetBrains Mono', 'Courier New', monospace;
+  font-size: 0.72rem;
+  color: var(--navy-500);
+  background-color: var(--navy-50);
+  border: 1px solid var(--navy-200);
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  text-align: center;
+  word-break: break-all;
+  margin-bottom: 24px;
+}
+
+.receipt-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.receipt-actions .btn-secondary,
+.receipt-actions .btn-primary {
+  flex: 1;
+  padding: 10px 16px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.receipt-actions .btn-secondary {
+  background: var(--navy-50);
+  border: 1px solid var(--navy-200);
+  color: var(--navy-700);
+}
+
+.receipt-actions .btn-secondary:hover {
+  background: var(--navy-100);
+  color: var(--navy-900);
+}
+
+.receipt-actions .btn-primary {
+  background: var(--primary-gradient);
+  border: 1px solid transparent;
+  color: var(--white);
+  box-shadow: 0 4px 12px rgba(0, 82, 255, 0.25);
+}
+
+.receipt-actions .btn-primary:hover {
+  background: var(--primary-hover-gradient);
+}
+
+/* ==========================================================================
+   Print Optimization
+   ========================================================================== */
 @media print {
   body {
     background-color: #FFFFFF !important;
@@ -302,5 +658,15 @@
     border: none !important;
     box-shadow: none !important;
     padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  .statement-table-wrap {
+    border: none !important;
+  }
+
+  .statement-table th {
+    background-color: #F1F5F9 !important;
+    color: #000000 !important;
   }
 }

@@ -269,7 +269,7 @@ export function StatementsPage({ user, onNavigate, onLogout }) {
                 }}
                 aria-label="Statement start date"
               />
-              <span style={{ color: "#94A3B8" }}>to</span>
+              <span className="date-separator">to</span>
               <input
                 type="date"
                 className="filter-date-input"
@@ -328,8 +328,8 @@ export function StatementsPage({ user, onNavigate, onLogout }) {
                 </p>
               </div>
 
-              <div style={{ textAlign: "right" }}>
-                <strong style={{ fontSize: "1.1rem", color: "var(--navy-900)" }}>{user?.name || "Demo Customer"}</strong>
+              <div className="statement-doc-customer">
+                <strong className="statement-customer-name">{user?.name || "Demo Customer"}</strong>
                 <p className="statement-doc-meta">Account: {user?.accountNumber || "NB8577145"}</p>
                 <p className="statement-doc-meta">{user?.accountType || "Savings Account"}</p>
               </div>
@@ -351,7 +351,7 @@ export function StatementsPage({ user, onNavigate, onLogout }) {
               </div>
               <div className="summary-bar-stat">
                 <label>Net Period Impact</label>
-                <span style={{ color: netStatementChange >= 0 ? "#10B981" : "#EF4444" }}>
+                <span className={netStatementChange >= 0 ? "text-success" : "text-error"}>
                   {netStatementChange >= 0 ? "+" : ""}{formatCurrency(netStatementChange)}
                 </span>
               </div>
@@ -378,28 +378,23 @@ export function StatementsPage({ user, onNavigate, onLogout }) {
                       const isIncome = tx.type === "income";
                       return (
                         <tr key={tx.id || tx.transactionId}>
-                          <td>{tx.date}</td>
-                          <td style={{ fontFamily: "monospace", fontWeight: "600" }}>
+                          <td className="statement-td-date">{tx.date}</td>
+                          <td className="statement-td-mono">
                             {tx.transactionId || tx.id}
                           </td>
-                          <td style={{ fontWeight: "600" }}>{tx.title}</td>
-                          <td>{tx.category}</td>
+                          <td className="statement-td-desc">{tx.title}</td>
+                          <td className="statement-td-category">{tx.category}</td>
                           <td>
-                            <span
-                              style={{
-                                color: isIncome ? "#059669" : "#DC2626",
-                                fontWeight: "700",
-                                fontSize: "0.78rem"
-                              }}
-                            >
+                            <span className={`statement-badge statement-badge--${isIncome ? "credit" : "debit"}`}>
                               {isIncome ? "CREDIT" : "DEBIT"}
                             </span>
                           </td>
-                          <td style={{ fontWeight: "700" }}>
+                          <td className={`statement-td-amount ${isIncome ? "statement-td-amount--income" : "statement-td-amount--expense"}`}>
                             {isIncome ? "+" : "-"} {formatCurrency(tx.amount)}
                           </td>
                           <td>
-                            <span style={{ color: "#10B981", fontWeight: "600", fontSize: "0.8rem" }}>
+                            <span className="statement-status-pill">
+                              <span className="statement-status-dot" />
                               {tx.status || "Completed"}
                             </span>
                           </td>
@@ -425,8 +420,13 @@ export function StatementsPage({ user, onNavigate, onLogout }) {
             </div>
 
             {/* Statement Verification Footer */}
-            <div style={{ marginTop: "32px", paddingTop: "16px", borderTop: "1px dashed #E2E8F0", fontSize: "0.78rem", color: "#94A3B8", display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: "10px" }}>
-              <span>Verified via NexShield™ 256-Bit Ledger Verification</span>
+            <div className="statement-doc-footer">
+              <span className="statement-verification-tag">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="14" height="14">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                </svg>
+                Verified via NexShield™ 256-Bit Ledger Verification
+              </span>
               <span>Generated on {new Date().toLocaleString()} &bull; Page 1 of 1</span>
             </div>
           </div>
@@ -437,16 +437,16 @@ export function StatementsPage({ user, onNavigate, onLogout }) {
           <div className="modal-overlay" onClick={() => setReceiptTx(null)}>
             <div className="receipt-card" onClick={(e) => e.stopPropagation()}>
               <div className="receipt-header">
-                <span style={{ fontSize: "0.75rem", fontWeight: "800", color: "#0052FF", letterSpacing: "0.08em" }}>
+                <span className="receipt-brand-tag">
                   NEXBANK DIGITAL RECEIPT
                 </span>
-                <h3 style={{ fontSize: "1.25rem", color: "var(--navy-900)", marginTop: "4px" }}>
+                <h3 className="receipt-status-title">
                   Transaction Verified
                 </h3>
-                <div className="receipt-amount-box" style={{ color: receiptTx.type === "income" ? "#10B981" : "#0F172A" }}>
+                <div className={`receipt-amount-box ${receiptTx.type === "income" ? "receipt-amount-box--income" : "receipt-amount-box--expense"}`}>
                   {receiptTx.type === "income" ? "+" : "-"} {formatCurrency(receiptTx.amount)}
                 </div>
-                <span style={{ fontSize: "0.82rem", color: "#64748B" }}>
+                <span className="receipt-desc-sub">
                   {receiptTx.title} &bull; {receiptTx.category}
                 </span>
               </div>
@@ -454,7 +454,7 @@ export function StatementsPage({ user, onNavigate, onLogout }) {
               <div className="receipt-rows">
                 <div className="receipt-row">
                   <span className="receipt-row-label">Reference ID</span>
-                  <span className="receipt-row-value">{receiptTx.transactionId || receiptTx.id}</span>
+                  <span className="receipt-row-value receipt-row-value--mono">{receiptTx.transactionId || receiptTx.id}</span>
                 </div>
                 <div className="receipt-row">
                   <span className="receipt-row-label">Transaction Date</span>
@@ -462,7 +462,7 @@ export function StatementsPage({ user, onNavigate, onLogout }) {
                 </div>
                 <div className="receipt-row">
                   <span className="receipt-row-label">Customer Account</span>
-                  <span className="receipt-row-value">{user?.accountNumber || "NB8577145"}</span>
+                  <span className="receipt-row-value receipt-row-value--mono">{user?.accountNumber || "NB8577145"}</span>
                 </div>
                 <div className="receipt-row">
                   <span className="receipt-row-label">Payment Channel</span>
@@ -470,8 +470,9 @@ export function StatementsPage({ user, onNavigate, onLogout }) {
                 </div>
                 <div className="receipt-row">
                   <span className="receipt-row-label">Audit Status</span>
-                  <span className="receipt-row-value" style={{ color: "#10B981" }}>
-                    &bull; {receiptTx.status || "Completed"}
+                  <span className="receipt-row-value receipt-row-value--success">
+                    <span className="receipt-status-dot" />
+                    {receiptTx.status || "Completed"}
                   </span>
                 </div>
               </div>
@@ -480,11 +481,10 @@ export function StatementsPage({ user, onNavigate, onLogout }) {
                 SHA256: e8a91bf97e204c3...{receiptTx.id || receiptTx.transactionId}
               </div>
 
-              <div style={{ display: "flex", gap: "10px" }}>
+              <div className="receipt-actions">
                 <button
                   type="button"
                   className="btn-secondary"
-                  style={{ flex: 1 }}
                   onClick={() => setReceiptTx(null)}
                 >
                   Close
@@ -492,7 +492,6 @@ export function StatementsPage({ user, onNavigate, onLogout }) {
                 <button
                   type="button"
                   className="btn-primary"
-                  style={{ flex: 1 }}
                   onClick={() => window.print()}
                 >
                   Print Receipt
