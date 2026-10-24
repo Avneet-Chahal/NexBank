@@ -503,8 +503,7 @@ export function DashboardPage({ user, onNavigate, onLogout }) {
                     {(startDate || endDate) && (
                       <button
                         type="button"
-                        className="type-pill-btn"
-                        style={{ fontSize: "0.75rem", padding: "4px 10px" }}
+                        className="type-pill-btn filter-clear-dates-btn"
                         onClick={() => { setStartDate(""); setEndDate(""); }}
                       >
                         Clear Dates

@@ -249,10 +249,18 @@ export function BudgetsPage({ user, onNavigate, onLogout }) {
               </div>
 
               {/* Overall Progress Bar */}
-              <div>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px", fontSize: "0.85rem" }}>
+              <div className="budget-overview-progress-section">
+                <div className="budget-overview-progress-header">
                   <span>Overall Monthly Spend: {overallStats.percentage}%</span>
-                  <span>{overallStats.isExceeded ? "Exceeded Budget!" : overallStats.isWarning ? "Approaching Limit (80%+)" : "On Track"}</span>
+                  <span className={`budget-overview-status-pill ${
+                    overallStats.isExceeded
+                      ? "budget-overview-status-pill--danger"
+                      : overallStats.isWarning
+                      ? "budget-overview-status-pill--warning"
+                      : "budget-overview-status-pill--normal"
+                  }`}>
+                    {overallStats.isExceeded ? "Exceeded Budget!" : overallStats.isWarning ? "Approaching Limit (80%+)" : "On Track"}
+                  </span>
                 </div>
                 <div className="budget-progress-track">
                   <div
@@ -310,7 +318,7 @@ export function BudgetsPage({ user, onNavigate, onLogout }) {
                       <div className="budget-card__numbers">
                         <div>
                           <span className="budget-card__numbers-spent">{formatCurrency(status.spent)}</span>
-                          <span style={{ fontSize: "0.8rem", color: "#64748B" }}> spent</span>
+                          <span className="budget-spent-sub"> spent</span>
                         </div>
                         <div className="budget-card__numbers-total">
                           Limit: {formatCurrency(b.amount)}
@@ -318,7 +326,7 @@ export function BudgetsPage({ user, onNavigate, onLogout }) {
                       </div>
 
                       {/* Progress Track */}
-                      <div className="budget-progress-track" style={{ height: "8px" }}>
+                      <div className="budget-progress-track budget-progress-track--card">
                         <div
                           className={`budget-progress-bar ${
                             isExceeded
@@ -334,7 +342,7 @@ export function BudgetsPage({ user, onNavigate, onLogout }) {
                       {/* Remaining amount */}
                       <div className="budget-card__remaining">
                         <span>{status.percentage}% used</span>
-                        <span>
+                        <span className={status.remaining < 0 ? "text-error" : ""}>
                           {status.remaining >= 0
                             ? `${formatCurrency(status.remaining)} remaining`
                             : `${formatCurrency(Math.abs(status.remaining))} exceeded`}
@@ -363,17 +371,18 @@ export function BudgetsPage({ user, onNavigate, onLogout }) {
                 })}
               </div>
             ) : (
-              <div className="chart-empty-state" style={{ backgroundColor: "var(--white)", borderRadius: "var(--radius-xl)", padding: "48px 24px" }}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="48" height="48">
-                  <rect x="2" y="5" width="20" height="14" rx="2" />
-                  <line x1="2" y1="10" x2="22" y2="10" />
-                </svg>
+              <div className="budgets-empty-card">
+                <div className="budgets-empty-icon-wrap">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="36" height="36">
+                    <rect x="2" y="5" width="20" height="14" rx="2" />
+                    <line x1="2" y1="10" x2="22" y2="10" />
+                  </svg>
+                </div>
                 <h3>No budgets set for {monthDisplayLabel}</h3>
                 <p>Establish category limits to monitor spending and receive real-time threshold warnings.</p>
                 <button
                   type="button"
                   className="create-budget-btn"
-                  style={{ marginTop: "16px" }}
                   onClick={handleOpenCreate}
                 >
                   Create Your First Budget
@@ -388,20 +397,24 @@ export function BudgetsPage({ user, onNavigate, onLogout }) {
           <div className="modal-overlay" onClick={() => setIsModalOpen(false)}>
             <div className="modal-card" onClick={(e) => e.stopPropagation()}>
               <div className="modal-header">
-                <h3 className="modal-title">
-                  {editingBudget ? "Edit Category Budget" : "Create Category Budget"}
-                </h3>
+                <div>
+                  <span className="modal-badge">{editingBudget ? "MODIFY LIMIT" : "NEW ALLOCATION"}</span>
+                  <h3 className="modal-title">
+                    {editingBudget ? "Edit Category Budget" : "Create Category Budget"}
+                  </h3>
+                </div>
                 <button
                   type="button"
                   className="modal-close-btn"
                   onClick={() => setIsModalOpen(false)}
+                  aria-label="Close modal"
                 >
                   &times;
                 </button>
               </div>
 
               {modalError && (
-                <div style={{ color: "#EF4444", fontSize: "0.85rem", marginBottom: "12px", fontWeight: "500" }}>
+                <div className="form-error-alert">
                   {modalError}
                 </div>
               )}
