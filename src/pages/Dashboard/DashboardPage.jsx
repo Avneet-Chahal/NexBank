@@ -1,11 +1,20 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import TopNavbar from "../../components/common/TopNavbar";
 import {
   fetchDashboardData,
   calculateFinancialMetrics,
+  calculateCategoryBreakdown,
+  calculateMonthlyTrends,
   filterAndSortTransactions,
-  formatCurrency
+  getAvailableCategories,
+  formatCurrency,
+  getSavedFilterPreferences,
+  saveFilterPreferences
 } from "../../services/dashboardService";
+import DataSourceBadge from "./components/DataSourceBadge";
+import MonthlyTrendChart from "./components/MonthlyTrendChart";
+import CategoryBreakdownChart from "./components/CategoryBreakdownChart";
+import MonthOverMonthCard from "./components/MonthOverMonthCard";
 import "./Dashboard.css";
 
 /**
@@ -18,35 +27,72 @@ import "./Dashboard.css";
  */
 export function DashboardPage({ user, onNavigate, onLogout }) {
   // State for asynchronous data loading
-  const [data, setData] = useState({ transactions: [], recentActivities: [] });
+  const [data, setData] = useState({ transactions: [], recentActivities: [], source: "Local Demo Fallback" });
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // State for transaction search, filter & sorting
+  // Initialize non-sensitive filter & sort preferences from Local Storage
+  const [initialPrefs] = useState(() => getSavedFilterPreferences());
   const [searchQuery, setSearchQuery] = useState("");
-  const [typeFilter, setTypeFilter] = useState("all");
-  const [sortBy, setSortBy] = useState("newest");
+  const [typeFilter, setTypeFilter] = useState(initialPrefs.typeFilter);
+  const [categoryFilter, setCategoryFilter] = useState(initialPrefs.categoryFilter || "all");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [sortBy, setSortBy] = useState(initialPrefs.sortBy);
 
   // Load Dashboard Data asynchronously on component mount
   useEffect(() => {
-    loadData();
+    const controller = new AbortController();
+    loadData(controller.signal);
+
+    return () => {
+      controller.abort();
+    };
   }, []);
+
+  // Persist non-sensitive filter & sort UI preferences to Local Storage whenever they change
+  useEffect(() => {
+    saveFilterPreferences({ typeFilter, categoryFilter, sortBy });
+  }, [typeFilter, categoryFilter, sortBy]);
 
   /**
    * Asynchronous function to fetch and populate dashboard data
+   * Handles loading, error, and success states safely
    */
-  const loadData = async () => {
+  const loadData = async (signal) => {
     setIsLoading(true);
     setError(null);
     try {
-      const responseData = await fetchDashboardData();
+      const abortSignal = signal instanceof AbortSignal ? signal : undefined;
+      const responseData = await fetchDashboardData({ signal: abortSignal });
       setData(responseData);
     } catch (err) {
+      if (err.name === "AbortError") return;
       console.error("Dashboard loading error:", err);
-      setError("Unable to load dashboard data. Please try again.");
+      setError(err.message || "Unable to load dashboard data. Please try again.");
     } finally {
       setIsLoading(false);
     }
+  };
+
+  /**
+   * Controlled form submission handler for transaction filtering
+   */
+  const handleFilterSubmit = (event) => {
+    event.preventDefault();
+  };
+
+  /**
+   * Reset filter form to default state and synchronize with Local Storage
+   */
+  const handleResetFilters = () => {
+    setSearchQuery("");
+    setTypeFilter("all");
+    setCategoryFilter("all");
+    setStartDate("");
+    setEndDate("");
+    setSortBy("newest");
+    saveFilterPreferences({ typeFilter: "all", categoryFilter: "all", sortBy: "newest" });
   };
 
   // Compute Greeting based on current local hour
@@ -67,14 +113,41 @@ export function DashboardPage({ user, onNavigate, onLogout }) {
   } = user || {};
 
   // Dynamically calculate metrics using reduce()
-  const metrics = calculateFinancialMetrics(data.transactions, balance);
+  const metrics = useMemo(
+    () => calculateFinancialMetrics(data.transactions, balance),
+    [data.transactions, balance]
+  );
+
+  // Category expense breakdown calculation
+  const categoryBreakdown = useMemo(
+    () => calculateCategoryBreakdown(data.transactions),
+    [data.transactions]
+  );
+
+  // Monthly trends and MoM comparison
+  const monthlyTrends = useMemo(
+    () => calculateMonthlyTrends(data.transactions),
+    [data.transactions]
+  );
+
+  // Available categories for dropdown
+  const availableCategories = useMemo(
+    () => getAvailableCategories(data.transactions),
+    [data.transactions]
+  );
 
   // Dynamically filter and sort transactions using non-mutating sort & filter
-  const displayedTransactions = filterAndSortTransactions(
-    data.transactions,
-    searchQuery,
-    typeFilter,
-    sortBy
+  const displayedTransactions = useMemo(
+    () =>
+      filterAndSortTransactions(data.transactions, {
+        searchQuery,
+        typeFilter,
+        categoryFilter,
+        startDate,
+        endDate,
+        sortBy
+      }),
+    [data.transactions, searchQuery, typeFilter, categoryFilter, startDate, endDate, sortBy]
   );
 
   /**
@@ -140,7 +213,7 @@ export function DashboardPage({ user, onNavigate, onLogout }) {
             <button
               type="button"
               className="dashboard-retry-btn"
-              onClick={loadData}
+              onClick={() => loadData()}
             >
               Retry
             </button>
@@ -161,9 +234,12 @@ export function DashboardPage({ user, onNavigate, onLogout }) {
                 </p>
               </div>
 
-              <div className="dashboard-status-badge">
-                <span className="status-dot" />
-                <span>Account Status: Active</span>
+              <div style={{ display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap" }}>
+                <DataSourceBadge source={data.source} />
+                <div className="dashboard-status-badge">
+                  <span className="status-dot" />
+                  <span>Account Status: Active</span>
+                </div>
               </div>
             </section>
 
@@ -272,6 +348,14 @@ export function DashboardPage({ user, onNavigate, onLogout }) {
               </div>
             </section>
 
+            {/* Performance & Trends Section: Month-over-Month + Interactive Charts */}
+            <MonthOverMonthCard comparison={monthlyTrends.momComparison} />
+
+            <section className="dashboard-analytics-section" id="analytics-section">
+              <MonthlyTrendChart data={monthlyTrends.monthlyData} />
+              <CategoryBreakdownChart categories={categoryBreakdown} />
+            </section>
+
             {/* Middle Section: Transaction Explorer + Side Panels */}
             <div className="dashboard-content-layout">
               
@@ -286,8 +370,13 @@ export function DashboardPage({ user, onNavigate, onLogout }) {
                   </div>
                 </div>
 
-                {/* Search & Filter Controls */}
-                <div className="transactions-controls">
+                {/* Search & Filter Controls (Semantic Controlled Form) */}
+                <form
+                  className="transactions-controls"
+                  onSubmit={handleFilterSubmit}
+                  role="search"
+                  aria-label="Transaction search and filter form"
+                >
                   {/* Search Input */}
                   <div className="transactions-search-wrapper">
                     <svg
@@ -298,22 +387,34 @@ export function DashboardPage({ user, onNavigate, onLogout }) {
                       strokeWidth="2"
                       width="18"
                       height="18"
+                      aria-hidden="true"
                     >
                       <circle cx="11" cy="11" r="8" />
                       <line x1="21" y1="21" x2="16.65" y2="16.65" />
                     </svg>
                     <input
-                      type="text"
+                      type="search"
                       className="transactions-search-input"
                       placeholder="Search transactions by title or category (e.g. Amazon, Salary, Shopping)..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
+                      aria-label="Search transactions"
                     />
+                    {searchQuery && (
+                      <button
+                        type="button"
+                        className="transactions-search-clear"
+                        onClick={() => setSearchQuery("")}
+                        aria-label="Clear search input"
+                      >
+                        &times;
+                      </button>
+                    )}
                   </div>
 
-                  {/* Filter Pills & Sort Select */}
+                  {/* Filter Pills, Category Select & Sort Select */}
                   <div className="transactions-filter-row">
-                    <div className="transactions-type-pills">
+                    <div className="transactions-type-pills" role="group" aria-label="Transaction type filter">
                       <button
                         type="button"
                         className={`type-pill-btn ${typeFilter === "all" ? "type-pill-btn--active" : ""}`}
@@ -337,19 +438,80 @@ export function DashboardPage({ user, onNavigate, onLogout }) {
                       </button>
                     </div>
 
-                    <select
-                      className="transactions-sort-select"
-                      value={sortBy}
-                      onChange={(e) => setSortBy(e.target.value)}
-                      aria-label="Sort transactions"
-                    >
-                      <option value="newest">Sort: Newest First</option>
-                      <option value="oldest">Sort: Oldest First</option>
-                      <option value="highest">Sort: Highest Amount</option>
-                      <option value="lowest">Sort: Lowest Amount</option>
-                    </select>
+                    <div style={{ display: "flex", alignItems: "center", gap: "8px", flexWrap: "wrap" }}>
+                      <select
+                        className="transactions-sort-select"
+                        value={categoryFilter}
+                        onChange={(e) => setCategoryFilter(e.target.value)}
+                        aria-label="Filter by category"
+                      >
+                        <option value="all">All Categories</option>
+                        {availableCategories.map((cat) => (
+                          <option key={cat} value={cat}>
+                            {cat}
+                          </option>
+                        ))}
+                      </select>
+
+                      <select
+                        className="transactions-sort-select"
+                        value={sortBy}
+                        onChange={(e) => setSortBy(e.target.value)}
+                        aria-label="Sort transactions"
+                      >
+                        <option value="newest">Sort: Newest First</option>
+                        <option value="oldest">Sort: Oldest First</option>
+                        <option value="highest">Sort: Highest Amount</option>
+                        <option value="lowest">Sort: Lowest Amount</option>
+                      </select>
+
+                      {(searchQuery || typeFilter !== "all" || categoryFilter !== "all" || startDate || endDate || sortBy !== "newest") && (
+                        <button
+                          type="button"
+                          className="type-pill-btn"
+                          onClick={handleResetFilters}
+                          title="Reset all filters to default"
+                        >
+                          Reset Filters
+                        </button>
+                      )}
+                    </div>
                   </div>
-                </div>
+
+                  {/* Secondary Filter Row: Date Range Filter */}
+                  <div className="transactions-filter-row-secondary">
+                    <div className="filter-date-group">
+                      <span>From:</span>
+                      <input
+                        type="date"
+                        className="filter-date-input"
+                        value={startDate}
+                        onChange={(e) => setStartDate(e.target.value)}
+                        aria-label="Filter start date"
+                      />
+                    </div>
+                    <div className="filter-date-group">
+                      <span>To:</span>
+                      <input
+                        type="date"
+                        className="filter-date-input"
+                        value={endDate}
+                        onChange={(e) => setEndDate(e.target.value)}
+                        aria-label="Filter end date"
+                      />
+                    </div>
+                    {(startDate || endDate) && (
+                      <button
+                        type="button"
+                        className="type-pill-btn"
+                        style={{ fontSize: "0.75rem", padding: "4px 10px" }}
+                        onClick={() => { setStartDate(""); setEndDate(""); }}
+                      >
+                        Clear Dates
+                      </button>
+                    )}
+                  </div>
+                </form>
 
                 {/* Transaction List */}
                 <div className="transactions-list">
@@ -383,11 +545,20 @@ export function DashboardPage({ user, onNavigate, onLogout }) {
                     })
                   ) : (
                     <div className="transactions-empty">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="36" height="36">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="36" height="36" aria-hidden="true">
                         <circle cx="11" cy="11" r="8" />
                         <line x1="21" y1="21" x2="16.65" y2="16.65" />
                       </svg>
                       <p>No transactions match &quot;{searchQuery}&quot; under the selected filter.</p>
+                      {(searchQuery || typeFilter !== "all" || sortBy !== "newest") && (
+                        <button
+                          type="button"
+                          className="transactions-reset-btn"
+                          onClick={handleResetFilters}
+                        >
+                          Reset Filters
+                        </button>
+                      )}
                     </div>
                   )}
                 </div>

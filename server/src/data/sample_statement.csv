@@ -1,0 +1,7 @@
+Transaction ID,Date,Description,Category,Type,Amount (INR),Balance (INR)
+TX-SAMPLE-001,2026-10-01,Opening Balance,Deposit,credit,50000.00,50000.00
+TX-SAMPLE-002,2026-10-04,Salary Credit - TechCorp,Salary,credit,45000.00,95000.00
+TX-SAMPLE-003,2026-10-07,Amazon Retail Purchase,Shopping,debit,3499.00,91501.00
+TX-SAMPLE-004,2026-10-12,Electricity Board Bill,Utilities,debit,1850.25,89650.75
+TX-SAMPLE-005,2026-10-18,Fine Dine Restaurant,Dining,debit,2400.00,87250.75
+TX-SAMPLE-006,2026-10-22,Mutual Fund SIP Investment,Investment,debit,5000.00,82250.75
