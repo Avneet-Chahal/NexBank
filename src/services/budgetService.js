@@ -83,8 +83,8 @@ function saveLocalBudgets(budgets) {
 /**
  * Fetch monthly budgets from Express backend or offline fallback
  * 
- * @param {string} [month] - Month string (YYYY-MM)
- * @returns {Promise<{ budgets: Array<object>, source: string }>}
+ * @param {string} [month] - Month string filter (YYYY-MM)
+ * @returns {Promise<{ budgets: Array<BudgetRecord>, source: string }>} Resolves with list of budgets and active data source
  */
 export async function fetchBudgets(month) {
   try {
@@ -117,6 +117,12 @@ export async function fetchBudgets(month) {
 
 /**
  * Create or upsert a category budget
+ * 
+ * @param {object} params
+ * @param {string} params.category - Budget category name
+ * @param {number|string} params.amount - Numeric budget allocation
+ * @param {string} [params.month] - Target month in YYYY-MM format
+ * @returns {Promise<BudgetRecord>} Persisted budget record
  */
 export async function createOrUpdateBudget({ category, amount, month }) {
   try {
@@ -167,7 +173,10 @@ export async function createOrUpdateBudget({ category, amount, month }) {
 }
 
 /**
- * Delete a budget
+ * Delete a budget record by its identifier
+ * 
+ * @param {string} id - Identifier of budget to remove
+ * @returns {Promise<boolean>} True upon successful deletion
  */
 export async function deleteBudget(id) {
   try {
