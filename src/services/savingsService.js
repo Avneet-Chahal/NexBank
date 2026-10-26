@@ -1,7 +1,78 @@
+/**
+ * @file savingsService.js
+ * @description Enterprise savings goal management service for NexBank.
+ * 
+ * Architecture & Data Flow:
+ * - Primary Layer: Express REST API (/api/goals) backed by MongoDB Atlas.
+ * - Resilience Layer: LocalStorage fallback for offline demonstration and resilience.
+ * - Milestones & Alerts: 10-day milestone deadline notifications and goal celebration events.
+ */
+
 import { getAuthToken } from "./authService.js";
 import { getStorageItem, setStorageItem } from "../utils/storage.js";
 
 const LOCAL_GOALS_KEY = "nexbank_local_savings_goals";
+
+/** Default currency standard for savings goals */
+export const DEFAULT_SAVINGS_CURRENCY = "INR";
+
+/** Milestone window in days for automated deadline reminders */
+export const SAVINGS_REMINDER_WINDOW_DAYS = 10;
+
+/**
+ * @typedef {Object} SavingsGoal
+ * @property {string} id - Unique goal ID or MongoDB ObjectId
+ * @property {string} name - Name/title of the savings target
+ * @property {number} targetAmount - Target monetary amount in INR
+ * @property {number} savedAmount - Cumulative saved amount
+ * @property {string} targetDate - Target completion deadline (YYYY-MM-DD)
+ * @property {string} category - Category (e.g. Emergency, Gadgets, Education)
+ * @property {boolean} isCompleted - True if savedAmount >= targetAmount
+ * @property {string} [currency='INR'] - Currency code
+ */
+
+/**
+ * @typedef {Object} SavingsGoalProgress
+ * @property {number} percentage - Rounded progress percentage (0 - 100)
+ * @property {number} remainingAmount - Amount remaining until target is achieved
+ * @property {boolean} isTargetMet - True if target is reached or surpassed
+ */
+
+/**
+ * Computes progress percentage and remaining balance for a savings target
+ * 
+ * @param {number} savedAmount - Current saved funds
+ * @param {number} targetAmount - Target monetary threshold
+ * @returns {SavingsGoalProgress} Computed progress metrics
+ */
+export function calculateGoalProgress(savedAmount, targetAmount) {
+  const saved = Math.max(0, Number(savedAmount) || 0);
+  const target = Math.max(0, Number(targetAmount) || 0);
+  if (target === 0) {
+    return { percentage: 100, remainingAmount: 0, isTargetMet: true };
+  }
+  const percentage = Math.min(100, Math.round((saved / target) * 100));
+  const remainingAmount = Math.max(0, target - saved);
+  return {
+    percentage,
+    remainingAmount,
+    isTargetMet: saved >= target
+  };
+}
+
+/**
+ * Formats a goal deadline into localized readable string
+ * 
+ * @param {string|Date} targetDate - Date string or instance
+ * @returns {string} Localized date string (e.g. "Dec 31, 2026")
+ */
+export function formatGoalDeadline(targetDate) {
+  if (!targetDate) return "No deadline set";
+  const dateObj = new Date(targetDate);
+  return isNaN(dateObj.getTime())
+    ? String(targetDate)
+    : dateObj.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+}
 
 // Seed data for offline demo fallback
 const INITIAL_DEMO_GOALS = [
