@@ -106,8 +106,42 @@ app.use(errorHandler);
 // 4. Server Initialization & Non-Blocking HTTP Listener
 // =============================================================================
 
+import User from "./models/User.js";
+
+async function seedDefaultUserIfMissing() {
+  try {
+    const existing = await User.findOne({ email: "demo@nexbank.com" });
+    if (!existing) {
+      await User.create({
+        name: "Demo Customer",
+        email: "demo@nexbank.com",
+        password: "Demo@123",
+        accountNumber: "NB8577145",
+        accountType: "Premier Checking Account",
+        balance: 84250.75,
+        currency: "INR",
+        mobile: "9876543210",
+        avatar: "DC",
+        accountStatus: "Active"
+      });
+      console.log("[DATABASE] Default demo customer (demo@nexbank.com) created in MongoDB Atlas.");
+    }
+  } catch (err) {
+    console.warn("[DATABASE] Note on demo user initialization:", err.message);
+  }
+}
+
+// Initialize goal reminder scheduler for 10-day milestone notifications
+import { startGoalReminderScheduler, stopGoalReminderScheduler } from "./services/goalReminderScheduler.js";
+
 // Connect to MongoDB Atlas (safe asynchronous connection initialization)
-connectDB();
+connectDB().then((connected) => {
+  if (connected) {
+    seedDefaultUserIfMissing();
+  }
+  // Start background goal reminder milestone processing
+  startGoalReminderScheduler();
+});
 
 const server = app.listen(PORT, () => {
   console.log("=================================================");
@@ -124,6 +158,7 @@ const server = app.listen(PORT, () => {
 // Graceful shutdown handling
 process.on("SIGINT", async () => {
   console.log("\n[SHUTDOWN] Received SIGINT. Closing HTTP server & database connection...");
+  stopGoalReminderScheduler();
   await disconnectDB();
   server.close(() => {
     console.log("[SHUTDOWN] NexBank server terminated cleanly.");
@@ -133,6 +168,7 @@ process.on("SIGINT", async () => {
 
 process.on("SIGTERM", async () => {
   console.log("\n[SHUTDOWN] Received SIGTERM. Closing HTTP server & database connection...");
+  stopGoalReminderScheduler();
   await disconnectDB();
   server.close(() => {
     console.log("[SHUTDOWN] NexBank server terminated cleanly.");

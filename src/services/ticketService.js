@@ -86,6 +86,9 @@ export async function createTicket(ticketData) {
 
     if (res.ok) {
       const data = await res.json();
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new CustomEvent("nexbank_notification_updated"));
+      }
       return data.data;
     }
   } catch (err) {

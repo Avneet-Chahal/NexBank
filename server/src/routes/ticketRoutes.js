@@ -8,6 +8,8 @@ import {
   getTicketById,
   createTicket
 } from "../data/ticketStore.js";
+import { Notification } from "../models/Notification.js";
+import { createNotification } from "../data/notificationStore.js";
 
 const router = Router();
 const DEFAULT_CUSTOMER_ID = "NX-8801";
@@ -101,6 +103,21 @@ router.post("/", requireAuth, async (req, res, next) => {
         status: "Open"
       });
 
+      // Create in-app notification confirming ticket submission
+      try {
+        const ticketRef = created.ticketId ? ` (ID: ${created.ticketId})` : "";
+        await Notification.create({
+          user: req.user._id,
+          title: "Support Ticket Submitted",
+          message: `Your support ticket '${created.subject}' has been submitted successfully${ticketRef}. Our team will review it.`,
+          type: "activity",
+          isRead: false
+        });
+      } catch (notifErr) {
+        // Notification failure must not falsely report ticket submission failure
+        console.error("[TICKETS] Failed to create in-app notification (handled gracefully):", notifErr.message);
+      }
+
       return res.status(201).json({
         success: true,
         message: "Support ticket registered successfully.",
@@ -120,6 +137,20 @@ router.post("/", requireAuth, async (req, res, next) => {
       },
       currentUserId
     );
+
+    try {
+      const ticketRef = newTicket.id ? ` (ID: ${newTicket.id})` : "";
+      createNotification(
+        {
+          title: "Support Ticket Submitted",
+          message: `Your support ticket '${newTicket.subject}' has been submitted successfully${ticketRef}. Our team will review it.`,
+          type: "activity"
+        },
+        currentUserId
+      );
+    } catch (notifErr) {
+      console.error("[TICKETS] In-memory notification creation error (handled gracefully):", notifErr.message);
+    }
 
     res.status(201).json({
       success: true,

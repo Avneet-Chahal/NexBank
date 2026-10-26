@@ -306,6 +306,12 @@
   border: 1px solid rgba(99, 102, 241, 0.2);
 }
 
+.notif-item__icon--goal_reminder {
+  background-color: #F5F3FF;
+  color: #7C3AED;
+  border: 1px solid rgba(139, 92, 246, 0.25);
+}
+
 .notif-item__content {
   flex: 1;
   padding-right: 20px;

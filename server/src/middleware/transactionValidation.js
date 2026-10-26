@@ -157,7 +157,9 @@ export function validateTransactionCreate(req, res, next) {
     category: category.trim(),
     type: type.trim().toLowerCase(),
     amount: parsedAmount,
-    date: date ? new Date(date).toISOString().slice(0, 10) : undefined
+    date: date ? new Date(date).toISOString().slice(0, 10) : undefined,
+    paymentMethod: typeof body.paymentMethod === "string" && body.paymentMethod.trim() ? body.paymentMethod.trim() : "Debit Card",
+    description: typeof body.description === "string" ? body.description.trim() : ""
   };
 
   next();

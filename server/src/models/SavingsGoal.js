@@ -39,10 +39,21 @@ const savingsGoalSchema = new mongoose.Schema(
     currency: {
       type: String,
       default: "INR"
+    },
+    reminderSent10Day: {
+      type: Boolean,
+      default: false
     }
   },
   {
-    timestamps: true
+    timestamps: true,
+    toJSON: {
+      transform: function (doc, ret) {
+        ret.id = ret._id ? ret._id.toString() : ret.id;
+        delete ret.__v;
+        return ret;
+      }
+    }
   }
 );
 

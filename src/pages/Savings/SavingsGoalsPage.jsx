@@ -25,6 +25,7 @@ export function SavingsGoalsPage({ user, onNavigate, onLogout }) {
 
   // Modal States
   const [isGoalModalOpen, setIsGoalModalOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [editingGoal, setEditingGoal] = useState(null);
   const [goalForm, setGoalForm] = useState({
     name: "",
@@ -92,6 +93,8 @@ export function SavingsGoalsPage({ user, onNavigate, onLogout }) {
   // Handle Save Goal
   const handleSaveGoal = async (e) => {
     e.preventDefault();
+    if (isSubmitting) return;
+
     if (!goalForm.name.trim()) {
       setModalError("Please provide a name for your savings goal.");
       return;
@@ -105,6 +108,9 @@ export function SavingsGoalsPage({ user, onNavigate, onLogout }) {
       setModalError("Target completion date is required.");
       return;
     }
+
+    setIsSubmitting(true);
+    setModalError("");
 
     try {
       if (editingGoal) {
@@ -123,11 +129,15 @@ export function SavingsGoalsPage({ user, onNavigate, onLogout }) {
           targetDate: goalForm.targetDate,
           category: goalForm.category
         });
+        // Dispatch immediate notification update across TopNavbar and NotificationDrawer
+        window.dispatchEvent(new CustomEvent("nexbank_notification_updated"));
       }
       setIsGoalModalOpen(false);
       loadGoals();
     } catch (err) {
       setModalError(err.message || "Failed to save savings goal.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -152,6 +162,7 @@ export function SavingsGoalsPage({ user, onNavigate, onLogout }) {
 
     try {
       await contributeToGoal(contributeTargetGoal.id || contributeTargetGoal._id, delta);
+      window.dispatchEvent(new CustomEvent("nexbank_notification_updated"));
       setIsContributeModalOpen(false);
       loadGoals();
     } catch (err) {
@@ -518,11 +529,11 @@ export function SavingsGoalsPage({ user, onNavigate, onLogout }) {
                 </div>
 
                 <div className="modal-footer">
-                  <button type="button" className="btn-secondary" onClick={() => setIsGoalModalOpen(false)}>
+                  <button type="button" className="btn-secondary" onClick={() => setIsGoalModalOpen(false)} disabled={isSubmitting}>
                     Cancel
                   </button>
-                  <button type="submit" className="btn-primary">
-                    Save Goal
+                  <button type="submit" className="btn-primary" disabled={isSubmitting}>
+                    {isSubmitting ? "Saving Goal..." : "Save Goal"}
                   </button>
                 </div>
               </form>

@@ -56,8 +56,9 @@ function saveLocalGoals(goals) {
  * @returns {Promise<{ goals: Array<object>, source: string }>}
  */
 export async function fetchGoals() {
+  const token = getAuthToken();
+
   try {
-    const token = getAuthToken();
     const headers = { Accept: "application/json" };
     if (token) headers["Authorization"] = `Bearer ${token}`;
 
@@ -66,7 +67,7 @@ export async function fetchGoals() {
       const result = await response.json();
       return {
         goals: result.data || [],
-        source: result.source || "Express Backend"
+        source: result.source || (token ? "MongoDB Atlas" : "Express Backend")
       };
     }
   } catch (err) {
@@ -83,148 +84,129 @@ export async function fetchGoals() {
  * Create a new savings goal
  */
 export async function createGoal(goalData) {
-  try {
-    const token = getAuthToken();
-    const headers = {
-      "Content-Type": "application/json",
-      Accept: "application/json"
-    };
-    if (token) headers["Authorization"] = `Bearer ${token}`;
-
-    const response = await fetch("http://localhost:5000/api/goals", {
-      method: "POST",
-      headers,
-      body: JSON.stringify(goalData)
-    });
-
-    if (response.ok) {
-      const result = await response.json();
-      return result.data;
-    }
-  } catch (err) {
-    console.warn("Backend offline, saving to local goals store:", err.message);
+  const token = getAuthToken();
+  if (!token) {
+    throw new Error("Authentication session expired or not found. Please sign in to create savings goals.");
   }
 
-  // Local fallback
-  const local = getLocalGoals();
-  const newGoal = {
-    id: `GOAL-${Date.now().toString().slice(-4)}`,
-    name: goalData.name.trim(),
-    targetAmount: Number(goalData.targetAmount),
-    savedAmount: Number(goalData.savedAmount || 0),
-    targetDate: goalData.targetDate,
-    category: goalData.category || "General",
-    isCompleted: Number(goalData.savedAmount || 0) >= Number(goalData.targetAmount),
-    currency: "INR"
+  const headers = {
+    "Content-Type": "application/json",
+    Accept: "application/json",
+    Authorization: `Bearer ${token}`
   };
 
-  local.push(newGoal);
-  saveLocalGoals(local);
-  return newGoal;
+  const response = await fetch("http://localhost:5000/api/goals", {
+    method: "POST",
+    headers,
+    body: JSON.stringify(goalData)
+  });
+
+  const resJson = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    const errorMsg =
+      resJson.error?.message ||
+      `Failed to create savings goal (HTTP ${response.status})`;
+    throw new Error(errorMsg);
+  }
+
+  return resJson.data;
 }
 
 /**
  * Edit a savings goal
  */
 export async function updateGoal(id, updates) {
-  try {
-    const token = getAuthToken();
-    const headers = {
-      "Content-Type": "application/json",
-      Accept: "application/json"
-    };
-    if (token) headers["Authorization"] = `Bearer ${token}`;
-
-    const response = await fetch(`http://localhost:5000/api/goals/${id}`, {
-      method: "PATCH",
-      headers,
-      body: JSON.stringify(updates)
-    });
-
-    if (response.ok) {
-      const result = await response.json();
-      return result.data;
-    }
-  } catch (err) {
-    console.warn("Backend offline, updating local goals store:", err.message);
+  const token = getAuthToken();
+  if (!token) {
+    throw new Error("Authentication session expired or not found. Please sign in to update goals.");
   }
 
-  // Local fallback
-  const local = getLocalGoals();
-  const idx = local.findIndex((g) => g.id === id || g._id === id);
-  if (idx !== -1) {
-    Object.assign(local[idx], updates);
-    if (updates.savedAmount !== undefined || updates.targetAmount !== undefined) {
-      local[idx].isCompleted = local[idx].savedAmount >= local[idx].targetAmount;
-    }
-    saveLocalGoals(local);
-    return local[idx];
+  const headers = {
+    "Content-Type": "application/json",
+    Accept: "application/json",
+    Authorization: `Bearer ${token}`
+  };
+
+  const response = await fetch(`http://localhost:5000/api/goals/${id}`, {
+    method: "PATCH",
+    headers,
+    body: JSON.stringify(updates)
+  });
+
+  const resJson = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    const errorMsg =
+      resJson.error?.message ||
+      `Failed to update savings goal (HTTP ${response.status})`;
+    throw new Error(errorMsg);
   }
-  return null;
+
+  return resJson.data;
 }
 
 /**
- * Process simulated demo contribution towards a goal
- * (Clearly marked as academic portfolio simulation)
+ * Process contribution towards a goal
  */
 export async function contributeToGoal(id, amount) {
-  try {
-    const token = getAuthToken();
-    const headers = {
-      "Content-Type": "application/json",
-      Accept: "application/json"
-    };
-    if (token) headers["Authorization"] = `Bearer ${token}`;
-
-    const response = await fetch(`http://localhost:5000/api/goals/${id}/contribute`, {
-      method: "POST",
-      headers,
-      body: JSON.stringify({ amount })
-    });
-
-    if (response.ok) {
-      const result = await response.json();
-      return result.data;
-    }
-  } catch (err) {
-    console.warn("Backend offline, updating simulated local goal contribution:", err.message);
+  const token = getAuthToken();
+  if (!token) {
+    throw new Error("Authentication session expired or not found. Please sign in to contribute to goals.");
   }
 
-  // Local fallback
-  const local = getLocalGoals();
-  const idx = local.findIndex((g) => g.id === id || g._id === id);
-  if (idx !== -1) {
-    const updatedAmount = Math.max(0, local[idx].savedAmount + Number(amount));
-    local[idx].savedAmount = updatedAmount;
-    local[idx].isCompleted = updatedAmount >= local[idx].targetAmount;
-    saveLocalGoals(local);
-    return local[idx];
+  const headers = {
+    "Content-Type": "application/json",
+    Accept: "application/json",
+    Authorization: `Bearer ${token}`
+  };
+
+  const response = await fetch(`http://localhost:5000/api/goals/${id}/contribute`, {
+    method: "POST",
+    headers,
+    body: JSON.stringify({ amount })
+  });
+
+  const resJson = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    const errorMsg =
+      resJson.error?.message ||
+      `Contribution failed (HTTP ${response.status})`;
+    throw new Error(errorMsg);
   }
-  return null;
+
+  return resJson.data;
 }
 
 /**
  * Delete a goal
  */
 export async function deleteGoal(id) {
-  try {
-    const token = getAuthToken();
-    const headers = {};
-    if (token) headers["Authorization"] = `Bearer ${token}`;
-
-    const response = await fetch(`http://localhost:5000/api/goals/${id}`, {
-      method: "DELETE",
-      headers
-    });
-
-    if (response.ok) return true;
-  } catch (err) {
-    console.warn("Backend offline, deleting from local goals store:", err.message);
+  const token = getAuthToken();
+  if (!token) {
+    throw new Error("Authentication session expired or not found. Please sign in to delete goals.");
   }
 
-  // Local fallback
-  const local = getLocalGoals();
-  const filtered = local.filter((g) => g.id !== id && g._id !== id);
-  saveLocalGoals(filtered);
+  const headers = {
+    Accept: "application/json",
+    Authorization: `Bearer ${token}`
+  };
+
+  const response = await fetch(`http://localhost:5000/api/goals/${id}`, {
+    method: "DELETE",
+    headers
+  });
+
+  const resJson = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    const errorMsg =
+      resJson.error?.message ||
+      `Failed to delete goal (HTTP ${response.status})`;
+    throw new Error(errorMsg);
+  }
+
   return true;
 }
+

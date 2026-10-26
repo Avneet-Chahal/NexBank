@@ -493,6 +493,18 @@
   color: var(--navy-900);
 }
 
+.budget-card-btn--spent {
+  background-color: #EEF2FF;
+  color: #4338CA;
+  border: 1px solid #E0E7FF;
+}
+
+.budget-card-btn--spent:hover {
+  background-color: #E0E7FF;
+  color: #312E81;
+  border-color: #C7D2FE;
+}
+
 .budget-card-btn--delete {
   background-color: #FEF2F2;
   color: #DC2626;

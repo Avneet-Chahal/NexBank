@@ -383,6 +383,47 @@
   margin-top: 2px;
 }
 
+.card-balance-loading {
+  font-size: 0.92rem;
+  color: var(--navy-500);
+  font-weight: 500;
+  letter-spacing: normal;
+  display: inline-block;
+  animation: pulseLoading 1.5s ease-in-out infinite;
+}
+
+@keyframes pulseLoading {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+.card-balance-error {
+  font-size: 0.85rem;
+  color: #DC2626;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  letter-spacing: normal;
+}
+
+.card-balance-retry-btn {
+  background: #FEE2E2;
+  border: 1px solid #FECACA;
+  color: #DC2626;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.card-balance-retry-btn:hover {
+  background: #FECACA;
+  color: #B91C1C;
+}
+
 .card-toggle-balance-btn {
   background: var(--navy-50);
   border: 1px solid var(--navy-200);

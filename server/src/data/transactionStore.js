@@ -198,6 +198,8 @@ export function createTransaction(payload, userId = "NX-8801") {
     category: payload.category.trim(),
     type: payload.type.toLowerCase(),
     amount: Number(Number(payload.amount).toFixed(2)),
+    paymentMethod: payload.paymentMethod || "Debit Card",
+    description: payload.description || "",
     date: payload.date || now.toISOString().slice(0, 10),
     status: "Completed",
     createdAt: now.toISOString()

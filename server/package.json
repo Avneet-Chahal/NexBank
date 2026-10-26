@@ -14,7 +14,8 @@
     "test:http": "node tests/native-http-test.mjs",
     "test:db": "node tests/db-connection-test.mjs",
     "test:v2": "node tests/nexbank-v2-features-test.mjs",
-    "test": "node tests/transaction-auth-test.mjs && node tests/stream-test.mjs && node tests/native-http-test.mjs && node tests/db-connection-test.mjs && node tests/promise-chaining-test.mjs && node tests/nexbank-v2-features-test.mjs"
+    "test:improvements": "node tests/targeted-improvements-test.mjs",
+    "test": "node tests/transaction-auth-test.mjs && node tests/stream-test.mjs && node tests/native-http-test.mjs && node tests/db-connection-test.mjs && node tests/promise-chaining-test.mjs && node tests/nexbank-v2-features-test.mjs && node tests/targeted-improvements-test.mjs"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
@@ -23,7 +24,8 @@
     "express": "^4.19.2",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.11.3",
-    "multer": "^2.4.0"
+    "multer": "^2.4.0",
+    "nodemailer": "^10.2.1"
   },
   "devDependencies": {
     "nodemon": "^3.1.4"

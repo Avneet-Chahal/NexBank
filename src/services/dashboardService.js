@@ -164,7 +164,7 @@ export function calculateFinancialMetrics(transactions = [], baseBalance = 84250
     .reduce((acc, tx) => acc + Number(tx.amount || 0), 0);
 
   const netSavings = Math.max(0, totalIncome - totalExpenses);
-  const availableBalance = baseBalance;
+  const availableBalance = Math.max(0, (Number(baseBalance) || 0) + totalIncome - totalExpenses);
 
   const totalFlow = totalIncome > 0 ? totalIncome : totalExpenses;
   const expensePercentage = totalFlow > 0 ? Math.min(100, Math.round((totalExpenses / totalFlow) * 100)) : 0;
@@ -474,4 +474,160 @@ export function formatCurrency(amount) {
     maximumFractionDigits: 2
   }).format(num);
 }
+
+/**
+ * Creates a new transaction (expense or income) via Express backend API
+ * 
+ * @param {object} payload
+ * @param {string} payload.title
+ * @param {number} payload.amount
+ * @param {string} payload.category
+ * @param {'expense'|'income'} [payload.type='expense']
+ * @param {string} [payload.date]
+ * @param {string} [payload.paymentMethod='Debit Card']
+ * @param {string} [payload.description='']
+ * @returns {Promise<object>} Created transaction record
+ */
+export async function createTransaction(payload) {
+  const token = getAuthToken();
+  if (!token) {
+    throw new Error("Authentication session expired or not found. Please sign in to record transactions.");
+  }
+
+  const headers = {
+    "Content-Type": "application/json",
+    Accept: "application/json",
+    Authorization: `Bearer ${token}`
+  };
+
+  const bodyData = {
+    title: payload.title?.trim(),
+    amount: Number(payload.amount),
+    category: payload.category?.trim(),
+    type: (payload.type || "expense").toLowerCase(),
+    date: payload.date || new Date().toISOString().slice(0, 10),
+    paymentMethod: payload.paymentMethod || "Debit Card",
+    description: payload.description || ""
+  };
+
+  const response = await fetch("http://localhost:5000/api/transactions", {
+    method: "POST",
+    headers,
+    body: JSON.stringify(bodyData)
+  });
+
+  const resJson = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    const errorMsg =
+      resJson.error?.message ||
+      (resJson.error?.details ? resJson.error.details.map((d) => d.message).join(", ") : null) ||
+      `Failed to record transaction (HTTP ${response.status})`;
+    throw new Error(errorMsg);
+  }
+
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new CustomEvent("nexbank_transaction_updated"));
+  }
+
+  return resJson.data;
+}
+
+/**
+ * Updates an existing transaction via Express backend API
+ * 
+ * @param {string} id - Transaction ID or _id
+ * @param {object} updates - Fields to modify
+ * @returns {Promise<object>} Updated transaction record
+ */
+export async function updateTransaction(id, updates) {
+  const token = getAuthToken();
+  if (!token) {
+    throw new Error("Authentication session expired or not found. Please sign in to update transactions.");
+  }
+
+  const headers = {
+    "Content-Type": "application/json",
+    Accept: "application/json",
+    Authorization: `Bearer ${token}`
+  };
+
+  const response = await fetch(`http://localhost:5000/api/transactions/${id}`, {
+    method: "PATCH",
+    headers,
+    body: JSON.stringify(updates)
+  });
+
+  const resJson = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    const errorMsg =
+      resJson.error?.message ||
+      `Failed to update transaction (HTTP ${response.status})`;
+    throw new Error(errorMsg);
+  }
+
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new CustomEvent("nexbank_transaction_updated"));
+  }
+
+  return resJson.data;
+}
+
+/**
+ * Deletes a transaction via Express backend API
+ * 
+ * @param {string} id - Transaction ID or _id
+ * @returns {Promise<boolean>}
+ */
+export async function deleteTransaction(id) {
+  const token = getAuthToken();
+  if (!token) {
+    throw new Error("Authentication session expired or not found. Please sign in to delete transactions.");
+  }
+
+  const headers = {
+    Accept: "application/json",
+    Authorization: `Bearer ${token}`
+  };
+
+  const response = await fetch(`http://localhost:5000/api/transactions/${id}`, {
+    method: "DELETE",
+    headers
+  });
+
+  const resJson = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    const errorMsg =
+      resJson.error?.message ||
+      `Failed to delete transaction (HTTP ${response.status})`;
+    throw new Error(errorMsg);
+  }
+
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new CustomEvent("nexbank_transaction_updated"));
+  }
+
+  return true;
+}
+
+/**
+ * Authoritative account balance computation reusing the exact same logic and ledger as Dashboard
+ * 
+ * @param {number} [baseBalance=84250.75]
+ * @returns {Promise<{ availableBalance: number, totalIncome: number, totalExpenses: number, source: string, transactions: Array<object> }>}
+ */
+export async function getAuthoritativeBalance(baseBalance = 84250.75) {
+  const data = await fetchDashboardData();
+  const metrics = calculateFinancialMetrics(data.transactions || [], baseBalance);
+  return {
+    availableBalance: metrics.availableBalance,
+    totalIncome: metrics.totalIncome,
+    totalExpenses: metrics.totalExpenses,
+    source: data.source,
+    transactions: data.transactions || []
+  };
+}
+
 

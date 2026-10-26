@@ -166,7 +166,8 @@ export function calculateBudgetStatus(budget, transactions = []) {
       if (tx.type !== "expense") return false;
       if (!tx.category || tx.category.toLowerCase() !== categoryName) return false;
       if (budgetMonth && tx.date) {
-        return tx.date.startsWith(budgetMonth);
+        const dateStr = typeof tx.date === "string" ? tx.date : new Date(tx.date).toISOString();
+        return dateStr.startsWith(budgetMonth);
       }
       return true;
     })
