@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import TopNavbar from "../../components/common/TopNavbar";
 import DataSourceBadge from "../Dashboard/components/DataSourceBadge";
 import { fetchCard, updateCardSettings, getDemoCardActivity } from "../../services/cardService";
-import { formatCurrency } from "../../services/dashboardService";
+import { formatCurrency, getAuthoritativeBalance } from "../../services/dashboardService";
 import "./Cards.css";
 
 export function CardsPage({ user, onNavigate, onLogout }) {
@@ -13,10 +13,23 @@ export function CardsPage({ user, onNavigate, onLogout }) {
   const [showBalance, setShowBalance] = useState(true);
   const [recentActivities] = useState(() => getDemoCardActivity());
   const [isUpdating, setIsUpdating] = useState(false);
+  const [accountBalance, setAccountBalance] = useState(null);
+  const [isBalanceLoading, setIsBalanceLoading] = useState(true);
+  const [balanceError, setBalanceError] = useState(null);
 
   useEffect(() => {
     loadCard();
-  }, []);
+    loadBalance();
+
+    const handleTxUpdate = () => {
+      loadBalance();
+    };
+
+    window.addEventListener("nexbank_transaction_updated", handleTxUpdate);
+    return () => {
+      window.removeEventListener("nexbank_transaction_updated", handleTxUpdate);
+    };
+  }, [user]);
 
   const loadCard = async () => {
     setIsLoading(true);
@@ -28,6 +41,21 @@ export function CardsPage({ user, onNavigate, onLogout }) {
       console.error("Failed to load virtual card:", err);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const loadBalance = async () => {
+    setIsBalanceLoading(true);
+    setBalanceError(null);
+    try {
+      const base = user?.balance !== undefined ? user.balance : 84250.75;
+      const res = await getAuthoritativeBalance(base);
+      setAccountBalance(res.availableBalance);
+    } catch (err) {
+      console.error("Failed to load authoritative account balance:", err);
+      setBalanceError("Unable to retrieve balance");
+    } finally {
+      setIsBalanceLoading(false);
     }
   };
 
@@ -197,7 +225,25 @@ export function CardsPage({ user, onNavigate, onLogout }) {
                     Primary Account Balance
                   </span>
                   <strong className="card-balance-value">
-                    {showBalance ? formatCurrency(user?.balance || 84250.75) : "••••••••"}
+                    {isBalanceLoading ? (
+                      <span className="card-balance-loading">Loading balance...</span>
+                    ) : balanceError ? (
+                      <span className="card-balance-error">
+                        {balanceError}{" "}
+                        <button
+                          type="button"
+                          className="card-balance-retry-btn"
+                          onClick={loadBalance}
+                          title="Retry retrieving authoritative balance"
+                        >
+                          Retry
+                        </button>
+                      </span>
+                    ) : showBalance ? (
+                      formatCurrency(accountBalance !== null ? accountBalance : (user?.balance || 84250.75))
+                    ) : (
+                      "••••••••"
+                    )}
                   </strong>
                 </div>
 

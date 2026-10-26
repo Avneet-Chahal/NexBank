@@ -88,6 +88,9 @@ export function SupportTicketsPage({ user, onNavigate, onLogout }) {
       await createTicket(form);
       setIsCreateModalOpen(false);
       loadData();
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new CustomEvent("nexbank_notification_updated"));
+      }
     } catch (err) {
       setFormError(err.message || "Failed to submit ticket.");
     } finally {

@@ -63,12 +63,23 @@ const TransactionSchema = new mongoose.Schema(
         message: "Status must be 'Completed', 'Pending', or 'Cancelled'"
       },
       default: "Completed"
+    },
+    paymentMethod: {
+      type: String,
+      trim: true,
+      default: "Debit Card"
+    },
+    description: {
+      type: String,
+      trim: true,
+      default: ""
     }
   },
   {
     timestamps: true,
     toJSON: {
       transform: function (doc, ret) {
+        ret.id = ret._id ? ret._id.toString() : ret.id;
         delete ret.__v;
         return ret;
       }

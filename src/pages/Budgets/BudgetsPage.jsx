@@ -7,7 +7,11 @@ import {
   deleteBudget,
   calculateBudgetStatus
 } from "../../services/budgetService";
-import { fetchDashboardData, formatCurrency } from "../../services/dashboardService";
+import {
+  fetchDashboardData,
+  formatCurrency,
+  createTransaction
+} from "../../services/dashboardService";
 import "./Budgets.css";
 
 const AVAILABLE_CATEGORIES = [
@@ -32,11 +36,18 @@ export function BudgetsPage({ user, onNavigate, onLogout }) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Modal State
+  // Modal State - Budget Limit
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingBudget, setEditingBudget] = useState(null);
   const [modalForm, setModalForm] = useState({ category: "Shopping", amount: "" });
   const [modalError, setModalError] = useState("");
+
+  // Modal State - Add Spent
+  const [isSpentModalOpen, setIsSpentModalOpen] = useState(false);
+  const [spentBudget, setSpentBudget] = useState(null);
+  const [spentForm, setSpentForm] = useState({ amount: "", date: "", description: "" });
+  const [spentError, setSpentError] = useState("");
+  const [isSpentSubmitting, setIsSpentSubmitting] = useState(false);
 
   useEffect(() => {
     loadData();
@@ -92,7 +103,7 @@ export function BudgetsPage({ user, onNavigate, onLogout }) {
       totalSpent += spent;
     });
 
-    const totalRemaining = Math.max(0, totalBudget - totalSpent);
+    const totalRemaining = totalBudget - totalSpent;
     const percentage = totalBudget > 0 ? Math.round((totalSpent / totalBudget) * 100) : 0;
     const isExceeded = percentage >= 100;
     const isWarning = percentage >= 80 && !isExceeded;
@@ -147,6 +158,68 @@ export function BudgetsPage({ user, onNavigate, onLogout }) {
       } catch (err) {
         alert("Failed to delete budget: " + err.message);
       }
+    }
+  };
+
+  // Handle open modal for Add Spent
+  const handleOpenAddSpent = (budget) => {
+    setSpentBudget(budget);
+    // Determine default date: if current month matches selected month, use today; else use 1st of selected month
+    const today = new Date();
+    const todayMonth = today.toISOString().slice(0, 7);
+    const defaultDate = todayMonth === selectedMonth
+      ? today.toISOString().slice(0, 10)
+      : `${selectedMonth}-01`;
+
+    setSpentForm({
+      amount: "",
+      date: defaultDate,
+      description: ""
+    });
+    setSpentError("");
+    setIsSpentModalOpen(true);
+  };
+
+  // Handle Save Spent
+  const handleSaveSpent = async (e) => {
+    e.preventDefault();
+    const amt = Number(spentForm.amount);
+    if (!amt || isNaN(amt) || amt <= 0) {
+      setSpentError("Please enter a valid spending amount greater than zero.");
+      return;
+    }
+
+    if (!spentForm.date) {
+      setSpentError("Please select a date for the spending record.");
+      return;
+    }
+
+    setIsSpentSubmitting(true);
+    setSpentError("");
+
+    try {
+      const descriptionText = spentForm.description ? spentForm.description.trim() : "";
+      const title = descriptionText.length >= 2
+        ? descriptionText
+        : `${spentBudget.category} Spending`;
+
+      await createTransaction({
+        title,
+        amount: amt,
+        category: spentBudget.category,
+        type: "expense",
+        date: spentForm.date,
+        description: descriptionText,
+        paymentMethod: "Debit Card"
+      });
+
+      setIsSpentModalOpen(false);
+      await loadData();
+    } catch (err) {
+      console.error("Failed to record budget spent:", err);
+      setSpentError(err.message || "Failed to save spending entry. Please try again.");
+    } finally {
+      setIsSpentSubmitting(false);
     }
   };
 
@@ -353,6 +426,14 @@ export function BudgetsPage({ user, onNavigate, onLogout }) {
                       <div className="budget-card__actions">
                         <button
                           type="button"
+                          className="budget-card-btn budget-card-btn--spent"
+                          onClick={() => handleOpenAddSpent(b)}
+                          title="Record spending against this budget"
+                        >
+                          Add Spent
+                        </button>
+                        <button
+                          type="button"
                           className="budget-card-btn"
                           onClick={() => handleOpenEdit(b)}
                         >
@@ -470,6 +551,101 @@ export function BudgetsPage({ user, onNavigate, onLogout }) {
                   </button>
                   <button type="submit" className="btn-primary">
                     Save Budget
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* Add Spent Modal */}
+        {isSpentModalOpen && spentBudget && (
+          <div className="modal-overlay" onClick={() => !isSpentSubmitting && setIsSpentModalOpen(false)}>
+            <div className="modal-card" onClick={(e) => e.stopPropagation()}>
+              <div className="modal-header">
+                <div>
+                  <span className="modal-badge">RECORD SPENDING</span>
+                  <h3 className="modal-title">
+                    Add Spent — {spentBudget.category}
+                  </h3>
+                </div>
+                <button
+                  type="button"
+                  className="modal-close-btn"
+                  onClick={() => !isSpentSubmitting && setIsSpentModalOpen(false)}
+                  aria-label="Close modal"
+                  disabled={isSpentSubmitting}
+                >
+                  &times;
+                </button>
+              </div>
+
+              {spentError && (
+                <div className="form-error-alert">
+                  {spentError}
+                </div>
+              )}
+
+              <form onSubmit={handleSaveSpent}>
+                <div className="form-group">
+                  <label className="form-label">Budget Category</label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    value={spentBudget.category}
+                    disabled
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Amount Spent (INR) *</label>
+                  <input
+                    type="number"
+                    className="form-input"
+                    placeholder="e.g. 1500"
+                    min="0.01"
+                    step="0.01"
+                    value={spentForm.amount}
+                    onChange={(e) => setSpentForm({ ...spentForm, amount: e.target.value })}
+                    required
+                    autoFocus
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Date of Spending *</label>
+                  <input
+                    type="date"
+                    className="form-input"
+                    value={spentForm.date}
+                    onChange={(e) => setSpentForm({ ...spentForm, date: e.target.value })}
+                    required
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Description (Optional)</label>
+                  <input
+                    type="text"
+                    className="form-input"
+                    placeholder="e.g. Grocery purchase at supermarket"
+                    maxLength={100}
+                    value={spentForm.description}
+                    onChange={(e) => setSpentForm({ ...spentForm, description: e.target.value })}
+                  />
+                </div>
+
+                <div className="modal-footer">
+                  <button
+                    type="button"
+                    className="btn-secondary"
+                    onClick={() => setIsSpentModalOpen(false)}
+                    disabled={isSpentSubmitting}
+                  >
+                    Cancel
+                  </button>
+                  <button type="submit" className="btn-primary" disabled={isSpentSubmitting}>
+                    {isSpentSubmitting ? "Saving..." : "Save Spending"}
                   </button>
                 </div>
               </form>

@@ -1,7 +1,62 @@
+/**
+ * @file budgetService.js
+ * @description Enterprise budget management service for NexBank.
+ * 
+ * Architecture & Data Flow:
+ * - Primary Layer: Express REST API (/api/budgets) authenticated via JWT Bearer tokens.
+ * - Resilience Layer: LocalStorage fallback for offline demonstration and testing.
+ * - Computation Layer: Real-time ledger reconciliation correlating monthly budgets with transaction records.
+ */
+
 import { getAuthToken } from "./authService.js";
 import { getStorageItem, setStorageItem } from "../utils/storage.js";
 
 const LOCAL_BUDGETS_KEY = "nexbank_local_budgets";
+
+/** Default currency standard across NexBank budget operations */
+export const DEFAULT_BUDGET_CURRENCY = "INR";
+
+/** Warning alert threshold percentage for budget consumption */
+export const BUDGET_WARNING_THRESHOLD_PERCENT = 80;
+
+/** Exceeded alert threshold percentage for budget consumption */
+export const BUDGET_EXCEEDED_THRESHOLD_PERCENT = 100;
+
+/**
+ * @typedef {Object} BudgetRecord
+ * @property {string} id - Unique budget identifier (e.g. BDG-101 or MongoDB ObjectId)
+ * @property {string} category - Budget category (e.g. Shopping, Utilities)
+ * @property {number} amount - Budget allocation amount
+ * @property {string} month - Calendar month in YYYY-MM format
+ * @property {string} [currency='INR'] - Currency code
+ */
+
+/**
+ * @typedef {Object} BudgetStatusResult
+ * @property {number} spent - Aggregate spent amount within the budget period
+ * @property {number} remaining - Net remaining budget allowance
+ * @property {number} percentage - Rounded consumption percentage (0-100+)
+ * @property {boolean} isWarning - True if consumption is between 80% and 99%
+ * @property {boolean} isExceeded - True if consumption has reached or exceeded 100%
+ * @property {'normal'|'warning'|'danger'} status - Semantic status token for visual badges
+ */
+
+/**
+ * Formats a YYYY-MM string into a localized human-readable display string
+ * 
+ * @param {string} yearMonth - Month string in "YYYY-MM" format
+ * @returns {string} Formatted label (e.g. "August 2026")
+ */
+export function formatBudgetMonth(yearMonth) {
+  if (!yearMonth || typeof yearMonth !== "string" || !yearMonth.includes("-")) {
+    return yearMonth || "";
+  }
+  const [year, month] = yearMonth.split("-");
+  const dateObj = new Date(Number(year), Number(month) - 1, 1);
+  return isNaN(dateObj.getTime())
+    ? yearMonth
+    : dateObj.toLocaleDateString("en-US", { month: "long", year: "numeric" });
+}
 
 // Seed data for offline demo fallback
 const INITIAL_DEMO_BUDGETS = [
@@ -28,8 +83,8 @@ function saveLocalBudgets(budgets) {
 /**
  * Fetch monthly budgets from Express backend or offline fallback
  * 
- * @param {string} [month] - Month string (YYYY-MM)
- * @returns {Promise<{ budgets: Array<object>, source: string }>}
+ * @param {string} [month] - Month string filter (YYYY-MM)
+ * @returns {Promise<{ budgets: Array<BudgetRecord>, source: string }>} Resolves with list of budgets and active data source
  */
 export async function fetchBudgets(month) {
   try {
@@ -62,6 +117,12 @@ export async function fetchBudgets(month) {
 
 /**
  * Create or upsert a category budget
+ * 
+ * @param {object} params
+ * @param {string} params.category - Budget category name
+ * @param {number|string} params.amount - Numeric budget allocation
+ * @param {string} [params.month] - Target month in YYYY-MM format
+ * @returns {Promise<BudgetRecord>} Persisted budget record
  */
 export async function createOrUpdateBudget({ category, amount, month }) {
   try {
@@ -112,7 +173,10 @@ export async function createOrUpdateBudget({ category, amount, month }) {
 }
 
 /**
- * Delete a budget
+ * Delete a budget record by its identifier
+ * 
+ * @param {string} id - Identifier of budget to remove
+ * @returns {Promise<boolean>} True upon successful deletion
  */
 export async function deleteBudget(id) {
   try {
@@ -166,7 +230,8 @@ export function calculateBudgetStatus(budget, transactions = []) {
       if (tx.type !== "expense") return false;
       if (!tx.category || tx.category.toLowerCase() !== categoryName) return false;
       if (budgetMonth && tx.date) {
-        return tx.date.startsWith(budgetMonth);
+        const dateStr = typeof tx.date === "string" ? tx.date : new Date(tx.date).toISOString();
+        return dateStr.startsWith(budgetMonth);
       }
       return true;
     })
@@ -176,8 +241,8 @@ export function calculateBudgetStatus(budget, transactions = []) {
   const remaining = budgetAmount - spent;
   const percentage = Math.round((spent / budgetAmount) * 100);
 
-  const isExceeded = percentage >= 100;
-  const isWarning = percentage >= 80 && !isExceeded;
+  const isExceeded = percentage >= BUDGET_EXCEEDED_THRESHOLD_PERCENT;
+  const isWarning = percentage >= BUDGET_WARNING_THRESHOLD_PERCENT && !isExceeded;
 
   let status = "normal";
   if (isExceeded) status = "danger";

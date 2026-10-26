@@ -18,7 +18,11 @@ export function getStorageItem(key) {
     if (rawData === null || rawData === undefined) {
       return null;
     }
-    return JSON.parse(rawData);
+    try {
+      return JSON.parse(rawData);
+    } catch {
+      return rawData;
+    }
   } catch (error) {
     console.error(`Error reading key "${key}" from localStorage:`, error);
     return null;

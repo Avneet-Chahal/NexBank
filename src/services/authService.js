@@ -1,23 +1,34 @@
 import { INITIAL_DEMO_USERS, STORAGE_KEYS } from "../data/mockUsers.js";
 import { getStorageItem, setStorageItem, removeStorageItem } from "../utils/storage.js";
 
-// In-memory authentication token store (held in runtime memory only, NEVER in localStorage)
+const AUTH_TOKEN_KEY = "nexbank_auth_token";
 let inMemoryAuthToken = null;
 
 /**
- * Retrieves the current in-memory JWT authentication token
+ * Retrieves the current JWT authentication token (with refresh recovery)
  * @returns {string|null}
  */
 export function getAuthToken() {
-  return inMemoryAuthToken;
+  if (inMemoryAuthToken) return inMemoryAuthToken;
+  const stored = getStorageItem(AUTH_TOKEN_KEY);
+  if (stored && typeof stored === "string") {
+    inMemoryAuthToken = stored;
+    return stored;
+  }
+  return null;
 }
 
 /**
- * Sets the current in-memory JWT authentication token
+ * Sets the current JWT authentication token and synchronizes persistent storage
  * @param {string|null} token
  */
 export function setAuthToken(token) {
   inMemoryAuthToken = token || null;
+  if (token) {
+    setStorageItem(AUTH_TOKEN_KEY, token);
+  } else {
+    removeStorageItem(AUTH_TOKEN_KEY);
+  }
 }
 
 /**

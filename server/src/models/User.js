@@ -78,6 +78,7 @@ const UserSchema = new mongoose.Schema(
     timestamps: true,
     toJSON: {
       transform: function (doc, ret) {
+        ret.id = ret._id ? ret._id.toString() : ret.id;
         delete ret.password;
         delete ret.__v;
         return ret;

@@ -20,7 +20,7 @@ const notificationSchema = new mongoose.Schema(
     },
     type: {
       type: String,
-      enum: ["activity", "budget_warning", "bill_reminder", "security"],
+      enum: ["activity", "budget_warning", "bill_reminder", "security", "goal_reminder"],
       default: "activity"
     },
     isRead: {
@@ -30,7 +30,14 @@ const notificationSchema = new mongoose.Schema(
     }
   },
   {
-    timestamps: true
+    timestamps: true,
+    toJSON: {
+      transform: function (doc, ret) {
+        ret.id = ret._id ? ret._id.toString() : ret.id;
+        delete ret.__v;
+        return ret;
+      }
+    }
   }
 );
 

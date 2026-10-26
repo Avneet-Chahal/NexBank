@@ -46,8 +46,8 @@ router.get("/", optionalAuth, async (req, res, next) => {
     const currentUserId = getActiveUserId(req);
 
     // A. When MongoDB Atlas is connected
-    if (isDbConnected() && req.user && req.user._id) {
-      const filter = { user: req.user._id };
+    if (isDbConnected() && req.user && (req.user._id || req.user.id)) {
+      const filter = { user: req.user._id || req.user.id };
 
       if (type && type !== "all") {
         filter.type = type.toLowerCase();
@@ -115,11 +115,12 @@ router.get("/:id", optionalAuth, validateTransactionId, async (req, res, next) =
     const currentUserId = getActiveUserId(req);
 
     // A. When MongoDB Atlas is connected
-    if (isDbConnected() && req.user && req.user._id) {
+    if (isDbConnected() && req.user && (req.user._id || req.user.id)) {
+      const userId = req.user._id || req.user.id;
       const isObjectId = mongoose.Types.ObjectId.isValid(id);
       const query = isObjectId
-        ? { _id: id, user: req.user._id }
-        : { transactionId: id.toUpperCase(), user: req.user._id };
+        ? { _id: id, user: userId }
+        : { transactionId: id.toUpperCase(), user: userId };
 
       // Demonstrates Mongoose populate()
       const dbTx = await Transaction.findOne(query).populate(
@@ -186,18 +187,21 @@ router.post("/", requireAuth, validateTransactionCreate, async (req, res, next) 
     const currentUserId = getActiveUserId(req);
 
     // A. When MongoDB Atlas is connected
-    if (isDbConnected() && req.user && req.user._id) {
-      const uniqueSuffix = Math.floor(1000 + Math.random() * 9000);
+    if (isDbConnected() && req.user && (req.user._id || req.user.id)) {
+      const userId = req.user._id || req.user.id;
+      const uniqueSuffix = `${Date.now().toString().slice(-6)}-${Math.floor(100 + Math.random() * 900)}`;
       const transactionId = `TX-${uniqueSuffix}`;
 
       const createdTx = await Transaction.create({
-        user: req.user._id,
+        user: userId,
         transactionId: transactionId,
         title: req.validatedBody.title,
         category: req.validatedBody.category,
         type: req.validatedBody.type,
         amount: req.validatedBody.amount,
-        date: req.validatedBody.date || new Date(),
+        paymentMethod: req.validatedBody.paymentMethod || "Debit Card",
+        description: req.validatedBody.description || "",
+        date: req.validatedBody.date ? new Date(req.validatedBody.date) : new Date(),
         status: "Completed"
       });
 
@@ -240,7 +244,8 @@ router.patch("/:id", requireAuth, validateTransactionId, validateTransactionUpda
     const currentUserId = getActiveUserId(req);
 
     // A. When MongoDB Atlas is connected
-    if (isDbConnected() && req.user && req.user._id) {
+    if (isDbConnected() && req.user && (req.user._id || req.user.id)) {
+      const userId = (req.user._id || req.user.id).toString();
       const isObjectId = mongoose.Types.ObjectId.isValid(id);
       const idQuery = isObjectId ? { _id: id } : { transactionId: id.toUpperCase() };
 
@@ -258,7 +263,7 @@ router.patch("/:id", requireAuth, validateTransactionId, validateTransactionUpda
       }
 
       // Enforce ownership: users may only modify their own transactions
-      if (existingTx.user.toString() !== req.user._id.toString()) {
+      if (existingTx.user.toString() !== userId) {
         return res.status(403).json({
           success: false,
           error: {
@@ -322,7 +327,8 @@ router.put("/:id", requireAuth, validateTransactionId, validateTransactionUpdate
     const currentUserId = getActiveUserId(req);
 
     // A. When MongoDB Atlas is connected
-    if (isDbConnected() && req.user && req.user._id) {
+    if (isDbConnected() && req.user && (req.user._id || req.user.id)) {
+      const userId = (req.user._id || req.user.id).toString();
       const isObjectId = mongoose.Types.ObjectId.isValid(id);
       const idQuery = isObjectId ? { _id: id } : { transactionId: id.toUpperCase() };
 
@@ -340,7 +346,7 @@ router.put("/:id", requireAuth, validateTransactionId, validateTransactionUpdate
       }
 
       // Enforce ownership: users may only modify their own transactions
-      if (existingTx.user.toString() !== req.user._id.toString()) {
+      if (existingTx.user.toString() !== userId) {
         return res.status(403).json({
           success: false,
           error: {
@@ -404,7 +410,8 @@ router.delete("/:id", requireAuth, validateTransactionId, async (req, res, next)
     const currentUserId = getActiveUserId(req);
 
     // A. When MongoDB Atlas is connected
-    if (isDbConnected() && req.user && req.user._id) {
+    if (isDbConnected() && req.user && (req.user._id || req.user.id)) {
+      const userId = (req.user._id || req.user.id).toString();
       const isObjectId = mongoose.Types.ObjectId.isValid(id);
       const idQuery = isObjectId ? { _id: id } : { transactionId: id.toUpperCase() };
 
@@ -422,7 +429,7 @@ router.delete("/:id", requireAuth, validateTransactionId, async (req, res, next)
       }
 
       // Enforce ownership: users may only delete their own transactions
-      if (existingTx.user.toString() !== req.user._id.toString()) {
+      if (existingTx.user.toString() !== userId) {
         return res.status(403).json({
           success: false,
           error: {

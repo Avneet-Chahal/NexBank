@@ -30,8 +30,9 @@ router.get("/", optionalAuth, async (req, res, next) => {
     const currentUserId = getActiveUserId(req);
 
     // MongoDB Atlas
-    if (isDbConnected() && req.user && req.user._id) {
-      const dbNotifs = await Notification.find({ user: req.user._id }).sort({ createdAt: -1 });
+    const userId = req.user ? (req.user._id ? req.user._id.toString() : req.user.id) : null;
+    if (isDbConnected() && userId) {
+      const dbNotifs = await Notification.find({ user: userId }).sort({ createdAt: -1 });
       const unreadCount = dbNotifs.filter((n) => !n.isRead).length;
 
       return res.status(200).json({
@@ -72,9 +73,10 @@ router.patch("/:id/read", requireAuth, async (req, res, next) => {
     const currentUserId = getActiveUserId(req);
 
     // MongoDB Atlas
-    if (isDbConnected() && req.user && req.user._id) {
+    const userId = req.user ? (req.user._id ? req.user._id.toString() : req.user.id) : null;
+    if (isDbConnected() && userId) {
       const isObjectId = mongoose.Types.ObjectId.isValid(id);
-      const query = isObjectId ? { _id: id, user: req.user._id } : { id };
+      const query = isObjectId ? { _id: id, user: userId } : { id, user: userId };
 
       const updated = await Notification.findOneAndUpdate(
         query,
@@ -113,8 +115,9 @@ router.patch("/mark-all-read", requireAuth, async (req, res, next) => {
     const currentUserId = getActiveUserId(req);
 
     // MongoDB Atlas
-    if (isDbConnected() && req.user && req.user._id) {
-      await Notification.updateMany({ user: req.user._id, isRead: false }, { isRead: true });
+    const userId = req.user ? (req.user._id ? req.user._id.toString() : req.user.id) : null;
+    if (isDbConnected() && userId) {
+      await Notification.updateMany({ user: userId, isRead: false }, { isRead: true });
 
       return res.status(200).json({
         success: true,
@@ -146,9 +149,10 @@ router.delete("/:id", requireAuth, async (req, res, next) => {
     const currentUserId = getActiveUserId(req);
 
     // MongoDB Atlas
-    if (isDbConnected() && req.user && req.user._id) {
+    const userId = req.user ? (req.user._id ? req.user._id.toString() : req.user.id) : null;
+    if (isDbConnected() && userId) {
       const isObjectId = mongoose.Types.ObjectId.isValid(id);
-      const query = isObjectId ? { _id: id, user: req.user._id } : { id };
+      const query = isObjectId ? { _id: id, user: userId } : { id, user: userId };
 
       await Notification.findOneAndDelete(query);
       return res.status(200).json({

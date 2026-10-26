@@ -1,7 +1,78 @@
+/**
+ * @file savingsService.js
+ * @description Enterprise savings goal management service for NexBank.
+ * 
+ * Architecture & Data Flow:
+ * - Primary Layer: Express REST API (/api/goals) backed by MongoDB Atlas.
+ * - Resilience Layer: LocalStorage fallback for offline demonstration and resilience.
+ * - Milestones & Alerts: 10-day milestone deadline notifications and goal celebration events.
+ */
+
 import { getAuthToken } from "./authService.js";
 import { getStorageItem, setStorageItem } from "../utils/storage.js";
 
 const LOCAL_GOALS_KEY = "nexbank_local_savings_goals";
+
+/** Default currency standard for savings goals */
+export const DEFAULT_SAVINGS_CURRENCY = "INR";
+
+/** Milestone window in days for automated deadline reminders */
+export const SAVINGS_REMINDER_WINDOW_DAYS = 10;
+
+/**
+ * @typedef {Object} SavingsGoal
+ * @property {string} id - Unique goal ID or MongoDB ObjectId
+ * @property {string} name - Name/title of the savings target
+ * @property {number} targetAmount - Target monetary amount in INR
+ * @property {number} savedAmount - Cumulative saved amount
+ * @property {string} targetDate - Target completion deadline (YYYY-MM-DD)
+ * @property {string} category - Category (e.g. Emergency, Gadgets, Education)
+ * @property {boolean} isCompleted - True if savedAmount >= targetAmount
+ * @property {string} [currency='INR'] - Currency code
+ */
+
+/**
+ * @typedef {Object} SavingsGoalProgress
+ * @property {number} percentage - Rounded progress percentage (0 - 100)
+ * @property {number} remainingAmount - Amount remaining until target is achieved
+ * @property {boolean} isTargetMet - True if target is reached or surpassed
+ */
+
+/**
+ * Computes progress percentage and remaining balance for a savings target
+ * 
+ * @param {number} savedAmount - Current saved funds
+ * @param {number} targetAmount - Target monetary threshold
+ * @returns {SavingsGoalProgress} Computed progress metrics
+ */
+export function calculateGoalProgress(savedAmount, targetAmount) {
+  const saved = Math.max(0, Number(savedAmount) || 0);
+  const target = Math.max(0, Number(targetAmount) || 0);
+  if (target === 0) {
+    return { percentage: 100, remainingAmount: 0, isTargetMet: true };
+  }
+  const percentage = Math.min(100, Math.round((saved / target) * 100));
+  const remainingAmount = Math.max(0, target - saved);
+  return {
+    percentage,
+    remainingAmount,
+    isTargetMet: saved >= target
+  };
+}
+
+/**
+ * Formats a goal deadline into localized readable string
+ * 
+ * @param {string|Date} targetDate - Date string or instance
+ * @returns {string} Localized date string (e.g. "Dec 31, 2026")
+ */
+export function formatGoalDeadline(targetDate) {
+  if (!targetDate) return "No deadline set";
+  const dateObj = new Date(targetDate);
+  return isNaN(dateObj.getTime())
+    ? String(targetDate)
+    : dateObj.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+}
 
 // Seed data for offline demo fallback
 const INITIAL_DEMO_GOALS = [
@@ -53,11 +124,12 @@ function saveLocalGoals(goals) {
 /**
  * Fetch savings goals from Express backend or offline fallback
  * 
- * @returns {Promise<{ goals: Array<object>, source: string }>}
+ * @returns {Promise<{ goals: Array<SavingsGoal>, source: string }>} Resolves with list of goals and data source
  */
 export async function fetchGoals() {
+  const token = getAuthToken();
+
   try {
-    const token = getAuthToken();
     const headers = { Accept: "application/json" };
     if (token) headers["Authorization"] = `Bearer ${token}`;
 
@@ -66,7 +138,7 @@ export async function fetchGoals() {
       const result = await response.json();
       return {
         goals: result.data || [],
-        source: result.source || "Express Backend"
+        source: result.source || (token ? "MongoDB Atlas" : "Express Backend")
       };
     }
   } catch (err) {
@@ -80,151 +152,155 @@ export async function fetchGoals() {
 }
 
 /**
- * Create a new savings goal
+ * Create a new savings goal via backend REST API
+ * 
+ * @param {object} goalData
+ * @param {string} goalData.name - Title of the savings goal
+ * @param {number|string} goalData.targetAmount - Target savings balance
+ * @param {number|string} [goalData.savedAmount=0] - Initial saved balance
+ * @param {string} goalData.targetDate - Target completion deadline
+ * @param {string} [goalData.category='General'] - Savings category
+ * @returns {Promise<SavingsGoal>} Created savings goal record
+ * @throws {Error} When user is unauthenticated or validation fails
  */
 export async function createGoal(goalData) {
-  try {
-    const token = getAuthToken();
-    const headers = {
-      "Content-Type": "application/json",
-      Accept: "application/json"
-    };
-    if (token) headers["Authorization"] = `Bearer ${token}`;
-
-    const response = await fetch("http://localhost:5000/api/goals", {
-      method: "POST",
-      headers,
-      body: JSON.stringify(goalData)
-    });
-
-    if (response.ok) {
-      const result = await response.json();
-      return result.data;
-    }
-  } catch (err) {
-    console.warn("Backend offline, saving to local goals store:", err.message);
+  const token = getAuthToken();
+  if (!token) {
+    throw new Error("Authentication session expired or not found. Please sign in to create savings goals.");
   }
 
-  // Local fallback
-  const local = getLocalGoals();
-  const newGoal = {
-    id: `GOAL-${Date.now().toString().slice(-4)}`,
-    name: goalData.name.trim(),
-    targetAmount: Number(goalData.targetAmount),
-    savedAmount: Number(goalData.savedAmount || 0),
-    targetDate: goalData.targetDate,
-    category: goalData.category || "General",
-    isCompleted: Number(goalData.savedAmount || 0) >= Number(goalData.targetAmount),
-    currency: "INR"
+  const headers = {
+    "Content-Type": "application/json",
+    Accept: "application/json",
+    Authorization: `Bearer ${token}`
   };
 
-  local.push(newGoal);
-  saveLocalGoals(local);
-  return newGoal;
+  const response = await fetch("http://localhost:5000/api/goals", {
+    method: "POST",
+    headers,
+    body: JSON.stringify(goalData)
+  });
+
+  const resJson = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    const errorMsg =
+      resJson.error?.message ||
+      `Failed to create savings goal (HTTP ${response.status})`;
+    throw new Error(errorMsg);
+  }
+
+  return resJson.data;
 }
 
 /**
- * Edit a savings goal
+ * Edit an existing savings goal
+ * 
+ * @param {string} id - Goal ID or MongoDB ObjectId
+ * @param {Partial<SavingsGoal>} updates - Fields to modify
+ * @returns {Promise<SavingsGoal>} Updated goal record
+ * @throws {Error} When user is unauthenticated or operation fails
  */
 export async function updateGoal(id, updates) {
-  try {
-    const token = getAuthToken();
-    const headers = {
-      "Content-Type": "application/json",
-      Accept: "application/json"
-    };
-    if (token) headers["Authorization"] = `Bearer ${token}`;
-
-    const response = await fetch(`http://localhost:5000/api/goals/${id}`, {
-      method: "PATCH",
-      headers,
-      body: JSON.stringify(updates)
-    });
-
-    if (response.ok) {
-      const result = await response.json();
-      return result.data;
-    }
-  } catch (err) {
-    console.warn("Backend offline, updating local goals store:", err.message);
+  const token = getAuthToken();
+  if (!token) {
+    throw new Error("Authentication session expired or not found. Please sign in to update goals.");
   }
 
-  // Local fallback
-  const local = getLocalGoals();
-  const idx = local.findIndex((g) => g.id === id || g._id === id);
-  if (idx !== -1) {
-    Object.assign(local[idx], updates);
-    if (updates.savedAmount !== undefined || updates.targetAmount !== undefined) {
-      local[idx].isCompleted = local[idx].savedAmount >= local[idx].targetAmount;
-    }
-    saveLocalGoals(local);
-    return local[idx];
+  const headers = {
+    "Content-Type": "application/json",
+    Accept: "application/json",
+    Authorization: `Bearer ${token}`
+  };
+
+  const response = await fetch(`http://localhost:5000/api/goals/${id}`, {
+    method: "PATCH",
+    headers,
+    body: JSON.stringify(updates)
+  });
+
+  const resJson = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    const errorMsg =
+      resJson.error?.message ||
+      `Failed to update savings goal (HTTP ${response.status})`;
+    throw new Error(errorMsg);
   }
-  return null;
+
+  return resJson.data;
 }
 
 /**
- * Process simulated demo contribution towards a goal
- * (Clearly marked as academic portfolio simulation)
+ * Process monetary contribution towards a goal
+ * 
+ * @param {string} id - Goal ID or MongoDB ObjectId
+ * @param {number|string} amount - Monetary contribution delta to credit
+ * @returns {Promise<SavingsGoal>} Updated goal record with new balance
+ * @throws {Error} When user is unauthenticated or operation fails
  */
 export async function contributeToGoal(id, amount) {
-  try {
-    const token = getAuthToken();
-    const headers = {
-      "Content-Type": "application/json",
-      Accept: "application/json"
-    };
-    if (token) headers["Authorization"] = `Bearer ${token}`;
-
-    const response = await fetch(`http://localhost:5000/api/goals/${id}/contribute`, {
-      method: "POST",
-      headers,
-      body: JSON.stringify({ amount })
-    });
-
-    if (response.ok) {
-      const result = await response.json();
-      return result.data;
-    }
-  } catch (err) {
-    console.warn("Backend offline, updating simulated local goal contribution:", err.message);
+  const token = getAuthToken();
+  if (!token) {
+    throw new Error("Authentication session expired or not found. Please sign in to contribute to goals.");
   }
 
-  // Local fallback
-  const local = getLocalGoals();
-  const idx = local.findIndex((g) => g.id === id || g._id === id);
-  if (idx !== -1) {
-    const updatedAmount = Math.max(0, local[idx].savedAmount + Number(amount));
-    local[idx].savedAmount = updatedAmount;
-    local[idx].isCompleted = updatedAmount >= local[idx].targetAmount;
-    saveLocalGoals(local);
-    return local[idx];
+  const headers = {
+    "Content-Type": "application/json",
+    Accept: "application/json",
+    Authorization: `Bearer ${token}`
+  };
+
+  const response = await fetch(`http://localhost:5000/api/goals/${id}/contribute`, {
+    method: "POST",
+    headers,
+    body: JSON.stringify({ amount })
+  });
+
+  const resJson = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    const errorMsg =
+      resJson.error?.message ||
+      `Contribution failed (HTTP ${response.status})`;
+    throw new Error(errorMsg);
   }
-  return null;
+
+  return resJson.data;
 }
 
 /**
- * Delete a goal
+ * Delete a goal by its identifier
+ * 
+ * @param {string} id - Goal ID or MongoDB ObjectId
+ * @returns {Promise<boolean>} True upon successful deletion
+ * @throws {Error} When user is unauthenticated or deletion fails
  */
 export async function deleteGoal(id) {
-  try {
-    const token = getAuthToken();
-    const headers = {};
-    if (token) headers["Authorization"] = `Bearer ${token}`;
-
-    const response = await fetch(`http://localhost:5000/api/goals/${id}`, {
-      method: "DELETE",
-      headers
-    });
-
-    if (response.ok) return true;
-  } catch (err) {
-    console.warn("Backend offline, deleting from local goals store:", err.message);
+  const token = getAuthToken();
+  if (!token) {
+    throw new Error("Authentication session expired or not found. Please sign in to delete goals.");
   }
 
-  // Local fallback
-  const local = getLocalGoals();
-  const filtered = local.filter((g) => g.id !== id && g._id !== id);
-  saveLocalGoals(filtered);
+  const headers = {
+    Accept: "application/json",
+    Authorization: `Bearer ${token}`
+  };
+
+  const response = await fetch(`http://localhost:5000/api/goals/${id}`, {
+    method: "DELETE",
+    headers
+  });
+
+  const resJson = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    const errorMsg =
+      resJson.error?.message ||
+      `Failed to delete goal (HTTP ${response.status})`;
+    throw new Error(errorMsg);
+  }
+
   return true;
 }
+

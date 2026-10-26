@@ -21,6 +21,14 @@ export function NotificationDrawer({ isOpen, onClose }) {
     }
   }, [isOpen]);
 
+  useEffect(() => {
+    const handleUpdate = () => {
+      loadData();
+    };
+    window.addEventListener("nexbank_notification_updated", handleUpdate);
+    return () => window.removeEventListener("nexbank_notification_updated", handleUpdate);
+  }, []);
+
   const loadData = async () => {
     try {
       const res = await fetchNotifications();
@@ -38,12 +46,14 @@ export function NotificationDrawer({ isOpen, onClose }) {
       prev.map((n) => (n.id === id || n._id === id ? { ...n, isRead: true } : n))
     );
     setUnreadCount((prev) => Math.max(0, prev - 1));
+    window.dispatchEvent(new CustomEvent("nexbank_notification_updated"));
   };
 
   const handleMarkAllRead = async () => {
     await markAllNotificationsRead();
     setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
     setUnreadCount(0);
+    window.dispatchEvent(new CustomEvent("nexbank_notification_updated"));
   };
 
   const handleDismiss = async (id, e) => {
@@ -54,6 +64,7 @@ export function NotificationDrawer({ isOpen, onClose }) {
       setUnreadCount((prev) => Math.max(0, prev - 1));
     }
     setNotifications((prev) => prev.filter((n) => n.id !== id && n._id !== id));
+    window.dispatchEvent(new CustomEvent("nexbank_notification_updated"));
   };
 
   const handleTogglePref = (key) => {
@@ -169,6 +180,12 @@ export function NotificationDrawer({ isOpen, onClose }) {
                     ) : n.type === "security" ? (
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="18" height="18">
                         <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                      </svg>
+                    ) : n.type === "goal_reminder" ? (
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="18" height="18">
+                        <circle cx="12" cy="12" r="10" />
+                        <circle cx="12" cy="12" r="6" />
+                        <circle cx="12" cy="12" r="2" />
                       </svg>
                     ) : (
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="18" height="18">

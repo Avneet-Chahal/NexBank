@@ -83,7 +83,7 @@ const NAV_ITEMS = [
  */
 export function TopNavbar({ user, activePage = "dashboard", onNavigate, onLogout }) {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [unreadCount, setUnreadCount] = useState(3);
+  const [unreadCount, setUnreadCount] = useState(0);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const userName = user?.name || "Customer";
@@ -101,6 +101,9 @@ export function TopNavbar({ user, activePage = "dashboard", onNavigate, onLogout
 
   useEffect(() => {
     refreshNotifications();
+    const handleUpdate = () => refreshNotifications();
+    window.addEventListener("nexbank_notification_updated", handleUpdate);
+    return () => window.removeEventListener("nexbank_notification_updated", handleUpdate);
   }, [isDrawerOpen]);
 
   const handleNavClick = (pageId) => {

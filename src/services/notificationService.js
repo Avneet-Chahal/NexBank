@@ -56,22 +56,27 @@ function saveLocalNotifications(list) {
  * Fetch notifications from backend or local fallback
  */
 export async function fetchNotifications() {
-  try {
-    const token = getAuthToken();
-    const headers = { Accept: "application/json" };
-    if (token) headers["Authorization"] = `Bearer ${token}`;
+  const token = getAuthToken();
 
-    const res = await fetch("http://localhost:5000/api/notifications", { headers });
-    if (res.ok) {
-      const data = await res.json();
-      return {
-        notifications: data.data || [],
-        unreadCount: data.unreadCount || 0,
-        source: data.source || "Express Backend"
+  if (token) {
+    try {
+      const headers = {
+        Accept: "application/json",
+        Authorization: `Bearer ${token}`
       };
+
+      const res = await fetch("http://localhost:5000/api/notifications", { headers });
+      if (res.ok) {
+        const data = await res.json();
+        return {
+          notifications: data.data || [],
+          unreadCount: data.unreadCount || 0,
+          source: data.source || "MongoDB Atlas"
+        };
+      }
+    } catch (err) {
+      console.warn("Backend notifications unreachable, using local fallback:", err.message);
     }
-  } catch (err) {
-    console.warn("Backend notifications unreachable, using local fallback:", err.message);
   }
 
   const local = getLocalNotifications();
@@ -87,17 +92,19 @@ export async function fetchNotifications() {
  * Mark a single notification as read
  */
 export async function markNotificationRead(id) {
-  try {
-    const token = getAuthToken();
-    const headers = {};
-    if (token) headers["Authorization"] = `Bearer ${token}`;
+  const token = getAuthToken();
 
-    await fetch(`http://localhost:5000/api/notifications/${id}/read`, {
-      method: "PATCH",
-      headers
-    });
-  } catch (err) {
-    console.warn("Backend offline, updating local notifs:", err.message);
+  if (token) {
+    try {
+      const headers = { Authorization: `Bearer ${token}` };
+      const res = await fetch(`http://localhost:5000/api/notifications/${id}/read`, {
+        method: "PATCH",
+        headers
+      });
+      if (res.ok) return true;
+    } catch (err) {
+      console.warn("Backend offline, updating local notifs:", err.message);
+    }
   }
 
   const local = getLocalNotifications();
@@ -113,17 +120,19 @@ export async function markNotificationRead(id) {
  * Mark all notifications as read
  */
 export async function markAllNotificationsRead() {
-  try {
-    const token = getAuthToken();
-    const headers = {};
-    if (token) headers["Authorization"] = `Bearer ${token}`;
+  const token = getAuthToken();
 
-    await fetch("http://localhost:5000/api/notifications/mark-all-read", {
-      method: "PATCH",
-      headers
-    });
-  } catch (err) {
-    console.warn("Backend offline, updating local notifs:", err.message);
+  if (token) {
+    try {
+      const headers = { Authorization: `Bearer ${token}` };
+      const res = await fetch("http://localhost:5000/api/notifications/mark-all-read", {
+        method: "PATCH",
+        headers
+      });
+      if (res.ok) return true;
+    } catch (err) {
+      console.warn("Backend offline, updating local notifs:", err.message);
+    }
   }
 
   const local = getLocalNotifications();
@@ -138,17 +147,19 @@ export async function markAllNotificationsRead() {
  * Dismiss a notification
  */
 export async function dismissNotification(id) {
-  try {
-    const token = getAuthToken();
-    const headers = {};
-    if (token) headers["Authorization"] = `Bearer ${token}`;
+  const token = getAuthToken();
 
-    await fetch(`http://localhost:5000/api/notifications/${id}`, {
-      method: "DELETE",
-      headers
-    });
-  } catch (err) {
-    console.warn("Backend offline, dismissing local notif:", err.message);
+  if (token) {
+    try {
+      const headers = { Authorization: `Bearer ${token}` };
+      const res = await fetch(`http://localhost:5000/api/notifications/${id}`, {
+        method: "DELETE",
+        headers
+      });
+      if (res.ok) return true;
+    } catch (err) {
+      console.warn("Backend offline, dismissing local notif:", err.message);
+    }
   }
 
   const local = getLocalNotifications();
