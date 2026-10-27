@@ -1,3 +1,4 @@
+// Displays Expenses and Limits
 import mongoose from "mongoose";
 
 const cardSchema = new mongoose.Schema(
